@@ -61,6 +61,10 @@ void settingsReceiveCommand(const char* mainCommand, const char* subCommand, con
     settingsFactory();
   HANDLE_COMMAND_END()
 
+  HANDLE_COMMAND_START("reset")
+    ESP.restart();
+  HANDLE_COMMAND_END()
+
   FORWARD_COMMAND(SETTING_DEVICE, deviceReceiveCommand)
   FORWARD_COMMAND(SETTING_WIFI, wifiReceiveCommand)
 

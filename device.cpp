@@ -13,7 +13,7 @@ void deviceNameFactory() {
   uint64_t mac = ESP.getEfuseMac();
   mac >>= (4*8);
   for (int i = 4; i < 8; i += 2) {
-    SETTINGS.DEVICE.name[i+0] = hexTable[mac & 0xF0];
+    SETTINGS.DEVICE.name[i+0] = hexTable[(mac & 0xF0) >> 4];
     SETTINGS.DEVICE.name[i+1] = hexTable[mac & 0x0F];
     mac >>= 8;
   }
