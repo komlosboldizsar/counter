@@ -104,7 +104,7 @@ void DigitLedDisplay::printDigit(int display, long number, bool point, byte star
 		str[0] = figure[i];
 		str[1] = '\0';
 		parseInt = (int) strtol(str, NULL, 10);
-		table(display, figureLength - i + startDigit, parseInt, (i == figureLength - 1));
+		table(display, figureLength - i + startDigit, parseInt, (point && (i == figureLength - 1)));
 	}
 }
 
