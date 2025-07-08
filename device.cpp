@@ -35,7 +35,7 @@ bool deviceReceiveCommand(const char* subCommand, const char* argument) {
   
   handled = handleSubcommandString(SETTING_DEVICE, SETTING_DEVICE_NAME, SETTINGS.DEVICE.name, -1, DEVICE_NAME_MAXLENGTH, subCommand, argument);
   if (handled) {
-    if (strcmp(SETTINGS.DEVICE.name, "_default_")) {
+    if (strcmp(SETTINGS.DEVICE.name, "_default_") == 0) {
       deviceNameFactory();
       Serial.print("device.name set to factory default: ");
       Serial.println(SETTINGS.DEVICE.name);
