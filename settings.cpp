@@ -57,6 +57,10 @@ void settingsReceiveCommand(const char* mainCommand, const char* subCommand, con
     settingsSave();
   HANDLE_COMMAND_END()
 
+  HANDLE_COMMAND_START("factory")
+    settingsFactory();
+  HANDLE_COMMAND_END()
+
   FORWARD_COMMAND(SETTING_DEVICE, deviceReceiveCommand)
   FORWARD_COMMAND(SETTING_WIFI, wifiReceiveCommand)
 
