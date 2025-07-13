@@ -6,7 +6,7 @@
 #define DISPLAY_NOTHING 0b00000000
 #define DISPLAY_DASH    0b00000001
 
-DigitLedDisplay display(1, DATA_DISP, ENABLE_DISP, CLK_DISP); // data, enable, clk
+DigitLedDisplay display(4, DATA_DISP, ENABLE_DISP, CLK_DISP); // data, enable, clk
 
 void displayInit() {
   display.setBrightAll(15);
@@ -21,13 +21,20 @@ void displayDigits(int dispIdx, uint8_t a, bool aDp, uint8_t b, bool bDp, uint8_
   display.printDigit(dispIdx, d, dDp, 3);
 }
 
+void displayDigit(int dispIdx, int pos, uint8_t a, bool aDp) {
+  display.printDigit(dispIdx, a, aDp, pos);
+}
+
 void displayDashes(int dispIdx, int count) {
   for (int i = 0; i < 4; i++)
     display.writeOne(dispIdx, i+1, (i < count) ? DISPLAY_DASH : DISPLAY_NOTHING);
 }
 
-void displayClear() {
-  display.clearAll();
+void displayClear(int dispIdx) {
+  if (dispIdx == -1)
+    display.clearAll();
+  else
+    display.clearOne(dispIdx);
 }
 
 void displaySetBrightness(uint8_t brightness) {
