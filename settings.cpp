@@ -26,6 +26,7 @@ void settingsSave() {
 void settingsFactory() {
   deviceSettingsFactory();
   wifiSettingsFactory();
+  mqttSettingsFactory();
   SETTINGS.initialized = INITIALIZED;
   Serial.println("Factory settings restored.");
   settingsSave();
@@ -35,6 +36,7 @@ void settingsDump() {
   Serial.println("**** SETTINGS DUMP ****");
   deviceSettingsDump();
   wifiSettingsDump();
+  mqttSettingsDump();
   Serial.println("**** SETTINGS DUMP END ****");
   Serial.println("");
 }
@@ -67,6 +69,7 @@ void settingsReceiveCommand(const char* mainCommand, const char* subCommand, con
 
   FORWARD_COMMAND(SETTING_DEVICE, deviceReceiveCommand)
   FORWARD_COMMAND(SETTING_WIFI, wifiReceiveCommand)
+  FORWARD_COMMAND(SETTING_MQTT, mqttReceiveCommand)
 
 }
 
