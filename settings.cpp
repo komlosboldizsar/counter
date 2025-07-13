@@ -96,6 +96,16 @@ void settingsDumpValueString(const char* settingName, const char* value) {
   Serial.println(line);
 }
 
+void settingsDumpValueInt(const char* settingName, int value) {
+  char valueStr[sizeof(int)*3+3];
+  itoa(value, valueStr, 10);
+  settingsDumpValueString(settingName, valueStr);
+}
+
+void settingsDumpValueBool(const char* settingName, bool value) {
+  settingsDumpValueString(settingName, value ? SETTING_BOOL_YES : SETTING_BOOL_NO);
+}
+
 void settingsDoneValueString(const char* groupName, const char* settingName, const char* value) {
   char line[64];
   memset(line, '\0', 64);
@@ -107,8 +117,10 @@ void settingsDoneValueString(const char* groupName, const char* settingName, con
   Serial.println(line);
 }
 
-void settingsDumpValueBool(const char* settingName, bool value) {
-  settingsDumpValueString(settingName, value ? SETTING_BOOL_YES : SETTING_BOOL_NO);
+void settingsDoneValueInt(const char* groupName, const char* settingName, int value) {
+  char valueStr[sizeof(int)*3+3];
+  itoa(value, valueStr, 10);
+  settingsDoneValueString(groupName, settingName, valueStr);
 }
 
 void settingsDoneValueBool(const char* groupName, const char* settingName, bool value) {
@@ -139,6 +151,48 @@ bool handleSubcommandString(const char* groupName, const char* settingName, char
   } else {
     strcpy(target, argument);
     settingsDoneValueString(groupName, settingName, argument);
+  }
+  return true;
+
+}
+
+bool handleSubcommandInt(const char* groupName, const char* settingName, int* target, int min, int max, const char* subCommand, const char* argument) {
+
+  if (strcmp(subCommand, settingName) != 0)
+    return false;
+
+  bool negative = true;
+  bool invalid = false;
+  long value = 0;
+
+  if (*argument == '-') {
+    negative = true;
+    argument++;
+  } else if (*argument == '+') {
+    argument++;
+  }
+
+  while (!invalid && (*argument != '\0')) {
+    if ((*argument >= '0') && (*argument <= '9')) {
+      value *= 10;
+      value += *argument - '0';
+      argument++;
+    } else {
+      invalid = true;
+    }
+  }
+
+  if (negative)
+    value *= -1;
+
+  if (invalid) {
+    settingsError(groupName, settingName, "invalid integer value");
+  } else if (value < min) {
+    settingsError(groupName, settingName, "too small");
+  } else if (value > max) {
+    settingsError(groupName, settingName, "too big");
+  } else {
+    *target = (int)value;
   }
   return true;
 
