@@ -18,6 +18,7 @@ void mqttInit() {
 
 void mqttSettingsFactory() {
   strcpy(SETTINGS.MQTT.broker, "192.168.1.1");
+  SETTINGS.MQTT.port = 1883;
   strcpy(SETTINGS.MQTT.user, "");
   strcpy(SETTINGS.MQTT.password, "");
   strcpy(SETTINGS.MQTT.topic, "counter");
@@ -26,6 +27,7 @@ void mqttSettingsFactory() {
 void mqttSettingsDump() {
   settingsDumpPartStart(SETTING_MQTT);
   settingsDumpValueString(SETTING_MQTT_BROKER, SETTINGS.MQTT.broker);
+  settingsDumpValueInt(SETTING_MQTT_PORT, SETTINGS.MQTT.port);
   settingsDumpValueString(SETTING_MQTT_USER, SETTINGS.MQTT.user);
   settingsDumpValueString(SETTING_MQTT_PASSWORD, SETTINGS.MQTT.password);
   settingsDumpValueString(SETTING_MQTT_TOPIC, SETTINGS.MQTT.topic);
@@ -36,6 +38,10 @@ bool mqttReceiveCommand(const char* subCommand, const char* argument) {
   bool handled = false;
   
   handled = handleSubcommandString(SETTING_MQTT, SETTING_MQTT_BROKER, SETTINGS.MQTT.broker, -1, MQTT_BROKER_MAXLENGTH, subCommand, argument);
+  if (handled)
+    return true;
+
+  handled = handleSubcommandInt(SETTING_MQTT, SETTING_MQTT_PORT, &SETTINGS.MQTT.port, 1, 65535, subCommand, argument);
   if (handled)
     return true;
 
