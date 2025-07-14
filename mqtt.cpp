@@ -160,10 +160,13 @@ void mqttConnect(unsigned long now) {
       #ifdef DEBUG_MQTT
       Serial.println("MQTT conencted.");
 	    #endif
-      char subscribeTopic[MQTT_TOPIC_MAXLENGTH+2+1];
-      strcpy(subscribeTopic, SETTINGS.MQTT.topic);
-      strcat(subscribeTopic, "/+");
-      mqttClient.subscribe(subscribeTopic);
+      char topicBuffer[MQTT_TOPIC_MAXLENGTH+32+1];
+      strcpy(topicBuffer, SETTINGS.MQTT.topic);
+      strcat(topicBuffer, "/+");
+      mqttClient.subscribe(topicBuffer);
+      strcpy(topicBuffer, SETTINGS.MQTT.topic);
+      strcat(topicBuffer, "/hello");
+      mqttClient.publish(topicBuffer, "hello");
     } else {
 	    #ifdef DEBUG_MQTT
       Serial.print("MQTT connection failed, code: [");
