@@ -6,6 +6,8 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
+#define DEBUG_MQTT
+
 static WiFiClient mqttWifiClient;
 static PubSubClient mqttClient;
 
@@ -149,33 +151,42 @@ void mqttCallback(char* topic, byte* message, unsigned int length) {
 }
 
 #define MQTT_RECONNECT_INTERVAL 5000
-unsigned long mqttLastReconnectTry;
+unsigned long mqttLastReconnectTry = 0;
 
 void mqttConnect(unsigned long now) {
-  while (!mqttClient.connected() && ((mqttLastReconnectTry == 0) || (mqttLastReconnectTry < now + MQTT_RECONNECT_INTERVAL) || (mqttLastReconnectTry > now))) {
+
+  if (mqttClient.connected())
+    return;
+  if ((mqttLastReconnectTry != 0) && (mqttLastReconnectTry < now) && (now < mqttLastReconnectTry + MQTT_RECONNECT_INTERVAL))
+    return;
+  // IMPROTANT _NOT_ TO CHECK WIFI STATUS!!
+  /*if (WiFi.status() != WL_CONNECTED)
+    return;*/
+  
+  #ifdef DEBUG_MQTT
+  Serial.println("MQTT connecting...");
+  #endif
+  if (mqttClient.connect(SETTINGS.DEVICE.name, SETTINGS.MQTT.user, SETTINGS.MQTT.password)) {
     #ifdef DEBUG_MQTT
-    Serial.println("MQTT connecting...");
-	  #endif
-    if (mqttClient.connect(SETTINGS.DEVICE.name, SETTINGS.MQTT.user, SETTINGS.MQTT.password)) {
-      #ifdef DEBUG_MQTT
-      Serial.println("MQTT conencted.");
-	    #endif
-      char topicBuffer[MQTT_TOPIC_MAXLENGTH+32+1];
-      strcpy(topicBuffer, SETTINGS.MQTT.topic);
-      strcat(topicBuffer, "/+");
-      mqttClient.subscribe(topicBuffer);
-      strcpy(topicBuffer, SETTINGS.MQTT.topic);
-      strcat(topicBuffer, "/hello");
-      mqttClient.publish(topicBuffer, "hello");
-    } else {
-	    #ifdef DEBUG_MQTT
-      Serial.print("MQTT connection failed, code: [");
-      Serial.print(mqttClient.state());
-      Serial.println("]");
-	    #endif
-    }
-    mqttLastReconnectTry = now;
+    Serial.println("MQTT connected.");
+    #endif
+    char topicBuffer[MQTT_TOPIC_MAXLENGTH+32+1];
+    strcpy(topicBuffer, SETTINGS.MQTT.topic);
+    strcat(topicBuffer, "/+");
+    mqttClient.subscribe(topicBuffer);
+    strcpy(topicBuffer, SETTINGS.MQTT.topic);
+    strcat(topicBuffer, "/hello");
+    mqttClient.publish(topicBuffer, "hello");
+  } else {
+    #ifdef DEBUG_MQTT
+    Serial.print("MQTT connection failed, code: [");
+    Serial.print(mqttClient.state());
+    Serial.println("]");
+    #endif
   }
+
+  mqttLastReconnectTry = now;
+
 }
 
 void mqttMainLoop(unsigned long now) {
