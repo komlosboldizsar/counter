@@ -11,6 +11,7 @@
 #include "improv.h"
 
 unsigned long programStart;
+unsigned long loopCounter = 0;
 
 void setup() {
   serialInit();
@@ -21,10 +22,10 @@ void setup() {
   Serial.print(SETTINGS.DEVICE.name);
   Serial.println("]");
   displayInit();
+  brightnessInit();
   improvInit();
   wifiInit();
   mqttInit();
-
   programStart = millis();
 }
 
@@ -33,8 +34,7 @@ void loop() {
   unsigned long loopStart = millis();
 
   serialRead();
-  brightnessUpdate();
-  mqttMainLoop(loopStart);
+  brightnessUpdate(loopCounter & 0x0F == 0x0F);
 
   bool wifiChanged = false;
   improvMainLoop(loopStart, &wifiChanged);
@@ -48,6 +48,8 @@ void loop() {
   unsigned long waitTime = MAIN_LOOP_TIME - loopElapsed;
   if ((waitTime < 0) || (waitTime > MAIN_LOOP_TIME))
     waitTime = 5;
-  delay(100);
+  delay(waitTime);
+
+  loopCounter++;
   
 }

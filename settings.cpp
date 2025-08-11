@@ -27,6 +27,7 @@ void settingsFactory() {
   deviceSettingsFactory();
   wifiSettingsFactory();
   mqttSettingsFactory();
+  brightnessSettingsFactory();
   SETTINGS.initialized = INITIALIZED;
   Serial.println("Factory settings restored.");
   settingsSave();
@@ -37,6 +38,7 @@ void settingsDump() {
   deviceSettingsDump();
   wifiSettingsDump();
   mqttSettingsDump();
+  brightnessSettingsDump();
   Serial.println("**** SETTINGS DUMP END ****");
   Serial.println("");
 }
@@ -70,6 +72,7 @@ void settingsReceiveCommand(const char* mainCommand, const char* subCommand, con
   FORWARD_COMMAND(SETTING_DEVICE, deviceReceiveCommand)
   FORWARD_COMMAND(SETTING_WIFI, wifiReceiveCommand)
   FORWARD_COMMAND(SETTING_MQTT, mqttReceiveCommand)
+  FORWARD_COMMAND(SETTING_BRIGHTNESS, brightnessReceiveCommand)
 
 }
 
@@ -124,7 +127,7 @@ void settingsDoneValueInt(const char* groupName, const char* settingName, int va
 }
 
 void settingsDoneValueBool(const char* groupName, const char* settingName, bool value) {
-  settingsDoneValueString(groupName, settingName,  value ? SETTING_BOOL_YES : SETTING_BOOL_NO);
+  settingsDoneValueString(groupName, settingName, value ? SETTING_BOOL_YES : SETTING_BOOL_NO);
 }
 
 void settingsError(const char* groupName, const char* settingName, const char* errorMessage) {
@@ -161,7 +164,7 @@ bool handleSubcommandInt(const char* groupName, const char* settingName, int* ta
   if (strcmp(subCommand, settingName) != 0)
     return false;
 
-  bool negative = true;
+  bool negative = false;
   bool invalid = false;
   long value = 0;
 
@@ -185,6 +188,8 @@ bool handleSubcommandInt(const char* groupName, const char* settingName, int* ta
   if (negative)
     value *= -1;
 
+  Serial.println(value, DEC);
+
   if (invalid) {
     settingsError(groupName, settingName, "invalid integer value");
   } else if (value < min) {
@@ -205,10 +210,10 @@ bool handleSubcommandBool(const char* groupName, const char* settingName, bool* 
 
   if (strcmp(argument, SETTING_BOOL_YES) == 0) {
     *target = true;
-    settingsDoneValueBool(groupName, settingName, argument);
+    settingsDoneValueBool(groupName, settingName, true);
   } else if (strcmp(argument, SETTING_BOOL_NO) == 0) {
     *target = false;
-    settingsDoneValueBool(groupName, settingName, argument);
+    settingsDoneValueBool(groupName, settingName, false);
   } else {
     settingsError(groupName, settingName, "invalid value (yes/no)");
   }

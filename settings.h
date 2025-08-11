@@ -6,6 +6,7 @@
 #include "mywifi.h"
 #include "device.h"
 #include "mqtt.h"
+#include "brightness.h"
 
 struct SettingsEEPROM {
   long initialized;
@@ -15,6 +16,8 @@ struct SettingsEEPROM {
   char _device_placeholder[256-sizeof(SettingsDevice)];
   SettingsMqtt MQTT;
   char _mqtt_placeholder[256-sizeof(SettingsMqtt)];
+  SettingsBrightness BRIGHTNESS;
+  char _brightness_placeholder[32-sizeof(SettingsBrightness)];
 };
 
 extern SettingsEEPROM SETTINGS;
