@@ -24,7 +24,6 @@ struct SettingsMqtt {
 void mqttInit();
 void mqttSettingsFactory();
 void mqttSettingsDump();
-void mqttMainLoop(unsigned long now);
 bool mqttReceiveCommand(const char* subCommand, const char* argument);
 
 #endif
