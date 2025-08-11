@@ -188,8 +188,6 @@ bool handleSubcommandInt(const char* groupName, const char* settingName, int* ta
   if (negative)
     value *= -1;
 
-  Serial.println(value, DEC);
-
   if (invalid) {
     settingsError(groupName, settingName, "invalid integer value");
   } else if (value < min) {
