@@ -11,6 +11,7 @@
 #include "improv.h"
 #include "mqtt.h"
 #include "device.h"
+#include "mymdns.h"
 
 unsigned long programStart;
 unsigned long loopCounter = 0;
@@ -29,6 +30,7 @@ void setup() {
   improvInit();
   wifiInit();
   mqttInit();
+  mymdnsInit();
   programStart = millis();
 }
 
