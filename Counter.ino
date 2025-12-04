@@ -12,6 +12,7 @@
 #include "mqtt.h"
 #include "device.h"
 #include "mymdns.h"
+#include "ota.h"
 #include "telnet.h"
 
 unsigned long programStart;
@@ -30,6 +31,7 @@ void setup() {
   wifiInit();
   mqttInit();
   mymdnsInit();
+  otaInit();
   telnetInit();
   programStart = millis();
 }
@@ -41,6 +43,7 @@ void loop() {
   serialRead();
   brightnessUpdate(loopCounter & 0x0F == 0x0F);
   settingsMainLoop();
+  otaMainLoop();
   telnetMainLoop();
 
   bool wifiChanged = false;
