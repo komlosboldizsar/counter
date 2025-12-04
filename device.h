@@ -18,4 +18,6 @@ public:
 extern SettingsDevice SETTINGS_DEVICE;
 extern SettingsManager SM_DEVICE;
 
+void deviceIntroduce(void(*outputFunc)(const char* message));
+
 #endif

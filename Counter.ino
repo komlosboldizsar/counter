@@ -12,6 +12,7 @@
 #include "mqtt.h"
 #include "device.h"
 #include "mymdns.h"
+#include "telnet.h"
 
 unsigned long programStart;
 unsigned long loopCounter = 0;
@@ -19,18 +20,17 @@ unsigned long loopCounter = 0;
 void setup() {
   serialInit();
   Serial.println("");
-  Serial.println("***** COUNTER *****");
+  Serial.println("");
   settingsInit();
   settingsLoad();
-  Serial.print("Shown name is [");
-  Serial.print(SETTINGS_DEVICE.name);
-  Serial.println("]");
+  deviceIntroduce(serialWrite);
   displayInit();
   brightnessInit();
   improvInit();
   wifiInit();
   mqttInit();
   mymdnsInit();
+  telnetInit();
   programStart = millis();
 }
 
@@ -41,6 +41,7 @@ void loop() {
   serialRead();
   brightnessUpdate(loopCounter & 0x0F == 0x0F);
   settingsMainLoop();
+  telnetMainLoop();
 
   bool wifiChanged = false;
   improvMainLoop(loopStart, &wifiChanged);

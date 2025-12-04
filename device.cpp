@@ -4,6 +4,12 @@
 #include "settings.h"
 #include "Esp.h"
 
+void deviceIntroduce(void(*outputFunc)(const char* message)) {
+  outputFunc("***** CLOCK 1.0\" [");
+  outputFunc(SETTINGS_DEVICE.name);
+  outputFunc("] *****\r\n");
+}
+
 static char hexTable[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 /* Setting custom - device.name */

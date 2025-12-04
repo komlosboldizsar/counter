@@ -7,13 +7,15 @@
 #include "mywifi.h"
 #include "mqtt.h"
 #include "brightness.h"
+#include "telnet.h"
 
 SettingsManager* SETTINGS[] = {
   &SM_DEVICE,
   &SM_WIFI,
   &SM_MQTT,
   &SM_BRIGHTNESS,
-  &SM_RT_BRIGHTNESS
+  &SM_RT_BRIGHTNESS,
+  &SM_TELNET
 };
 
 #define LOOP_SETTINGS()     for (int i = 0; i < sizeof(SETTINGS)/sizeof(SettingsManager*); i++)
