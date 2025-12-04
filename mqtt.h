@@ -1,18 +1,12 @@
 #ifndef MQTT_H_
 #define MQTT_H_
 
+#include "settings.h"
+
 #define MQTT_BROKER_MAXLENGTH    64
 #define MQTT_USER_MAXLENGTH      32
 #define MQTT_PASSWORD_MAXLENGTH  32
 #define MQTT_TOPIC_MAXLENGTH     16
-
-struct SettingsMqtt {
-  char broker[MQTT_BROKER_MAXLENGTH+1];
-  int port;
-  char user[MQTT_USER_MAXLENGTH+1];
-  char password[MQTT_PASSWORD_MAXLENGTH+1];
-  char topic[MQTT_TOPIC_MAXLENGTH+1];
-};
 
 #define SETTING_MQTT            "mqtt"
 #define SETTING_MQTT_BROKER     "broker"
@@ -21,9 +15,18 @@ struct SettingsMqtt {
 #define SETTING_MQTT_PASSWORD   "password"
 #define SETTING_MQTT_TOPIC      "topic"
 
+struct SettingsMqtt {
+public:
+  char broker[MQTT_BROKER_MAXLENGTH+1];
+  int port;
+  char user[MQTT_USER_MAXLENGTH+1];
+  char password[MQTT_PASSWORD_MAXLENGTH+1];
+  char topic[MQTT_TOPIC_MAXLENGTH+1];
+};
+
+extern SettingsMqtt SETTINGS_MQTT;
+extern SettingsManager SM_MQTT;
+
 void mqttInit();
-void mqttSettingsFactory();
-void mqttSettingsDump();
-bool mqttReceiveCommand(const char* subCommand, const char* argument);
 
 #endif

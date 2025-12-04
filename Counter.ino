@@ -9,6 +9,8 @@
 #include "brightness.h"
 #include "mywifi.h"
 #include "improv.h"
+#include "mqtt.h"
+#include "device.h"
 
 unsigned long programStart;
 unsigned long loopCounter = 0;
@@ -16,10 +18,11 @@ unsigned long loopCounter = 0;
 void setup() {
   serialInit();
   Serial.println("");
-  Serial.println("***** COUNTER\" *****");
+  Serial.println("***** COUNTER *****");
   settingsInit();
+  settingsLoad();
   Serial.print("Shown name is [");
-  Serial.print(SETTINGS.DEVICE.name);
+  Serial.print(SETTINGS_DEVICE.name);
   Serial.println("]");
   displayInit();
   brightnessInit();
@@ -35,6 +38,7 @@ void loop() {
 
   serialRead();
   brightnessUpdate(loopCounter & 0x0F == 0x0F);
+  settingsMainLoop();
 
   bool wifiChanged = false;
   improvMainLoop(loopStart, &wifiChanged);

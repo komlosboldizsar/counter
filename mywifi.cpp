@@ -3,36 +3,19 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include "settings.h"
+#include "device.h"
 
 void wifiInit() {
-  WiFi.setHostname(SETTINGS.DEVICE.name);
+  WiFi.setHostname(SETTINGS_DEVICE.name);
   WiFi.setAutoReconnect(true);
-  WiFi.begin(SETTINGS.WIFI.ssid, SETTINGS.WIFI.password);
+  WiFi.begin(SETTINGS_WIFI.ssid, SETTINGS_WIFI.password);
 }
 
-void wifiSettingsFactory() {
-  strcpy(SETTINGS.WIFI.ssid, "CLOCK");
-  strcpy(SETTINGS.WIFI.password, "clock");
-}
+/* Settings */
+SettingsWifi SETTINGS_WIFI;
 
-void wifiSettingsDump() {
-  settingsDumpPartStart(SETTING_WIFI);
-  settingsDumpValueString(SETTING_WIFI_SSID, SETTINGS.WIFI.ssid);
-  settingsDumpValueString(SETTING_WIFI_PASSWORD, SETTINGS.WIFI.password);
-}
+SettingValueManagerString SVM_WIFI_SSID(SETTING_WIFI_SSID, SETTINGS_WIFI.ssid, "COUNTER", -1, WIFI_SSID_MAXLENGTH);
+SettingValueManagerString SVM_WIFI_PASSWORD(SETTING_WIFI_PASSWORD, SETTINGS_WIFI.password, "counter", -1, WIFI_PASSWORD_MAXLENGTH);
 
-bool wifiReceiveCommand(const char* subCommand, const char* argument) {
-
-  bool handled = false;
-  
-  handled = handleSubcommandString(SETTING_WIFI, SETTING_WIFI_SSID, SETTINGS.WIFI.ssid, -1, WIFI_SSID_MAXLENGTH, subCommand, argument);
-  if (handled)
-    return true;
-
-  handleSubcommandString(SETTING_WIFI, SETTING_WIFI_PASSWORD, SETTINGS.WIFI.password, -1, WIFI_PASSWORD_MAXLENGTH, subCommand, argument);
-  if (handled)
-    return true;
-
-  return false;
-  
-}
+SettingValueManager* SM_WIFI_MEMBERS[] = { &SVM_WIFI_SSID, &SVM_WIFI_PASSWORD, NULL };
+SettingsManager SM_WIFI(SETTING_WIFI, LONGTIME, SETTINGS_DATA(SETTINGS_WIFI), SM_WIFI_MEMBERS);

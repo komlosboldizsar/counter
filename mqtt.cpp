@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "settings.h"
 #include "display.h"
+#include "device.h"
 #include <WiFi.h>
 #include "ESP32MQTTClient.h"
 
@@ -58,10 +59,10 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payload) {
   const char* topic = topicSTR.c_str();
   const char* strBuffer = payload.c_str();
 
-  int basetopicLength = strlen(SETTINGS.MQTT.topic);
+  int basetopicLength = strlen(SETTINGS_MQTT.topic);
   int topicLength = strlen(topic);
 
-  if (strncmp(topic, SETTINGS.MQTT.topic, basetopicLength) == 0) {
+  if (strncmp(topic, SETTINGS_MQTT.topic, basetopicLength) == 0) {
 
     if ((topicLength >= basetopicLength + 2) && (topic[basetopicLength] == '/')) {
       const char* strPtr = topic+basetopicLength+1;
@@ -98,11 +99,11 @@ void mqttOnMessageEmptyCallback(const std::string &topicSTR, const std::string &
 void onMqttConnect(esp_mqtt_client_handle_t client)
 {
   if (mqttClient.isMyTurn(client)) {
-    char topic[sizeof(SETTINGS.MQTT.topic)+16];
-    strcpy(topic, SETTINGS.MQTT.topic);
+    char topic[sizeof(SETTINGS_MQTT.topic)+16];
+    strcpy(topic, SETTINGS_MQTT.topic);
     strcat(topic, "/#");
     mqttClient.subscribe(topic, mqttOnMessageEmptyCallback);
-    strcpy(topic, SETTINGS.MQTT.topic);
+    strcpy(topic, SETTINGS_MQTT.topic);
     strcat(topic, "/hello");
     mqttClient.publish(topic, "hello");
   }
@@ -115,54 +116,21 @@ void handleMQTT(void *handler_args, esp_event_base_t base, int32_t event_id, voi
 }
 
 void mqttInit() {
-  mqttClient.setURL(SETTINGS.MQTT.broker, SETTINGS.MQTT.port, SETTINGS.MQTT.user, SETTINGS.MQTT.password);
-  mqttClient.setMqttClientName(SETTINGS.DEVICE.name);
+  mqttClient.setURL(SETTINGS_MQTT.broker, SETTINGS_MQTT.port, SETTINGS_MQTT.user, SETTINGS_MQTT.password);
+  mqttClient.setMqttClientName(SETTINGS_DEVICE.name);
   mqttClient.setKeepAlive(30);
   mqttClient.setOnMessageCallback(mqttOnMessage);
   mqttClient.loopStart();
 }
 
-void mqttSettingsFactory() {
-  strcpy(SETTINGS.MQTT.broker, "192.168.1.1");
-  SETTINGS.MQTT.port = 1883;
-  strcpy(SETTINGS.MQTT.user, "");
-  strcpy(SETTINGS.MQTT.password, "");
-  strcpy(SETTINGS.MQTT.topic, "counter");
-}
+/* Settings */
+SettingsMqtt SETTINGS_MQTT;
 
-void mqttSettingsDump() {
-  settingsDumpPartStart(SETTING_MQTT);
-  settingsDumpValueString(SETTING_MQTT_BROKER, SETTINGS.MQTT.broker);
-  settingsDumpValueInt(SETTING_MQTT_PORT, SETTINGS.MQTT.port);
-  settingsDumpValueString(SETTING_MQTT_USER, SETTINGS.MQTT.user);
-  settingsDumpValueString(SETTING_MQTT_PASSWORD, SETTINGS.MQTT.password);
-  settingsDumpValueString(SETTING_MQTT_TOPIC, SETTINGS.MQTT.topic);
-}
+SettingValueManagerString SVM_MQTT_BROKER(SETTING_MQTT_BROKER, SETTINGS_MQTT.broker, "192.168.1.1", -1, MQTT_BROKER_MAXLENGTH);
+SettingValueManagerInt SVM_MQTT_PORT(SETTING_MQTT_PORT, &SETTINGS_MQTT.port, 1883, 1, 65535);
+SettingValueManagerString SVM_MQTT_USER(SETTING_MQTT_USER, SETTINGS_MQTT.user, "counter", -1, MQTT_USER_MAXLENGTH);
+SettingValueManagerString SVM_MQTT_PASSWORD(SETTING_MQTT_PASSWORD, SETTINGS_MQTT.password, "counter", -1, MQTT_PASSWORD_MAXLENGTH);
+SettingValueManagerString SVM_MQTT_TOPIC(SETTING_MQTT_TOPIC, SETTINGS_MQTT.topic, "counter", -1, MQTT_TOPIC_MAXLENGTH);
 
-bool mqttReceiveCommand(const char* subCommand, const char* argument) {
-
-  bool handled = false;
-  
-  handled = handleSubcommandString(SETTING_MQTT, SETTING_MQTT_BROKER, SETTINGS.MQTT.broker, -1, MQTT_BROKER_MAXLENGTH, subCommand, argument);
-  if (handled)
-    return true;
-
-  handled = handleSubcommandInt(SETTING_MQTT, SETTING_MQTT_PORT, &SETTINGS.MQTT.port, 1, 65535, subCommand, argument);
-  if (handled)
-    return true;
-
-  handleSubcommandString(SETTING_MQTT, SETTING_MQTT_USER, SETTINGS.MQTT.user, -1, MQTT_USER_MAXLENGTH, subCommand, argument);
-  if (handled)
-    return true;
-
-  handleSubcommandString(SETTING_MQTT, SETTING_MQTT_PASSWORD, SETTINGS.MQTT.password, -1, MQTT_PASSWORD_MAXLENGTH, subCommand, argument);
-  if (handled)
-    return true;
-
-  handleSubcommandString(SETTING_MQTT, SETTING_MQTT_TOPIC, SETTINGS.MQTT.topic, -1, MQTT_TOPIC_MAXLENGTH, subCommand, argument);
-  if (handled)
-    return true;
-
-  return false;
-  
-}
+SettingValueManager* SM_MQTT_MEMBERS[] = { &SVM_MQTT_BROKER, &SVM_MQTT_PORT, &SVM_MQTT_USER, &SVM_MQTT_PASSWORD, &SVM_MQTT_TOPIC, NULL };
+SettingsManager SM_MQTT(SETTING_MQTT, LONGTIME, SETTINGS_DATA(SETTINGS_MQTT), SM_MQTT_MEMBERS);

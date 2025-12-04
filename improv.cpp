@@ -4,7 +4,8 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include "mywifi.h"
-#include "settings.h"
+#include "wifi.h"
+#include "device.h"
 
 #define DEBUG_IMPROV
 
@@ -145,8 +146,8 @@ class ImprovCharacteristicRpcCommandCallbacks : public BLECharacteristicCallback
     memcpy(wifiPassword, receivedFullString+wifiSsidLength+4, wifiPasswordLength);
     wifiPassword[wifiPasswordLength] = '\0';
 
-    strcpy(SETTINGS.WIFI.ssid, wifiSsid);
-    strcpy(SETTINGS.WIFI.password, wifiPassword);
+    strcpy(SETTINGS_WIFI.ssid, wifiSsid);
+    strcpy(SETTINGS_WIFI.password, wifiPassword);
     settingsSave();
     improvWifiChanged = true;
 
@@ -256,7 +257,7 @@ class ImprovCharacteristicRpcCommandCallbacks : public BLECharacteristicCallback
 
 void improvInit() {
   
-  BLEDevice::init(SETTINGS.DEVICE.name);
+  BLEDevice::init(SETTINGS_DEVICE.name);
   improvServer = BLEDevice::createServer();
   improvServer->setCallbacks(new ImprovServerCallbacks());
   BLEService *improvService = improvServer->createService("00467768-6228-2272-4663-277478268000");

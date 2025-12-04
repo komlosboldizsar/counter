@@ -5,6 +5,7 @@
 
 void serialInit();
 void serialRead();
+void serialWrite(const char* message);
 void serialHandleCommand();
 
 #endif

@@ -18,7 +18,8 @@ void serialRead() {
       Serial.print(incomingByte);
       if (incomingByte == '\r' || incomingByte == '\n') {
         serialBuffer[serialBufferIdx++] = '\0';
-        serialHandleCommand();
+        settingsReceiveLine(serialBuffer, serialWrite);
+		serialBufferIdx = 0;
       } else {
         serialBuffer[serialBufferIdx++] = incomingByte;
       }
@@ -26,52 +27,7 @@ void serialRead() {
   }
 }
 
-#define TOKEN_COUNT 3
-#define TOKEN_MAXLENGTH 64
-
-void serialHandleCommand() {
-
-  if (serialBufferIdx == 0)
-    return;
-
-  char* serialBufferReader = serialBuffer;
-
-  char tokens[TOKEN_COUNT][TOKEN_MAXLENGTH+1];
-  for (int i = 0; i < TOKEN_COUNT; i++)
-    memset(tokens[i], '\0', TOKEN_MAXLENGTH);
-
-  int currentTokenIdx = 0;
-  char* currentToken = tokens[0];
-  int currentTokenLength = 0;
-
-  while (*serialBufferReader == ' ')
-    serialBufferReader++;
-
-  bool prevIsSpace = false;
-  while (*serialBufferReader != '\0')
-  {
-    if ((*serialBufferReader != ' ') || (currentTokenIdx == TOKEN_COUNT - 1)) {
-        if (currentTokenLength < TOKEN_MAXLENGTH)
-            *currentToken = *serialBufferReader;
-        currentToken++;
-        currentTokenLength++;
-        prevIsSpace = false;
-    } else {
-        if (!prevIsSpace && (currentTokenIdx < TOKEN_COUNT - 1)) {
-            currentToken = tokens[++currentTokenIdx];
-            currentTokenLength = 0;
-        }
-        prevIsSpace = true;
-    }
-    serialBufferReader++;
-  }
-
-  if (strcmp(tokens[0], "reboot") == 0) {
-    Serial.println("reboot");
-  } else {
-    settingsReceiveCommand(tokens[0], tokens[1], tokens[2]);
-  }
-  
-  serialBufferIdx = 0;
-
+void serialWrite(const char* message) {
+  Serial.print(message);
 }
+
