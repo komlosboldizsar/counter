@@ -1,6 +1,7 @@
 #include "brightness.h"
 #include "display.h"
 #include "settings.h"
+#include "mqtt.h"
 #include <Arduino.h>
 #include <driver/adc.h>
 
@@ -95,6 +96,9 @@ int brightnessCurrent = 512;
 int brightnessAnalogValueHistory[BRIGHTNESS_ANALOG_VALUE_HISTORY_SIZE];
 int brightnessAnalogValueHistoryIndex = 0;
 
+uint8_t brightnessPrevious = -1;
+uint8_t brightnessCalculateCounter = 0;
+
 uint8_t brightnessCalculate(bool enableDebug) {
 
   // Read and clamp
@@ -122,6 +126,11 @@ uint8_t brightnessCalculate(bool enableDebug) {
     Serial.print(", ");
   }
 
+  if ((brightnessCalculateCounter & 0xFF) == 0xFF) {
+    mqttNotifyIlluminanceChanged(analogValueAvg);
+    brightnessCalculateCounter = 0;
+  }
+
   // Limit step
   int analogValueDiff = analogValueAvg - brightnessCurrent;
   if ((analogValueDiff > 0) && (analogValueDiff > BRIGHTNESS_ANALOG_VALUE_MAX_STEP))
@@ -147,6 +156,8 @@ uint8_t brightnessCalculate(bool enableDebug) {
     }
     Serial.println(".");
   }
+  
+  brightnessCalculateCounter++;
 
   return RUNTIME_BRIGHTNESS.isAuto ? brightnessDisplayValueRounded : RUNTIME_BRIGHTNESS.manual;
 
@@ -155,4 +166,8 @@ uint8_t brightnessCalculate(bool enableDebug) {
 void brightnessUpdate(bool enableDebug) {
   uint8_t brightness = brightnessCalculate(enableDebug);
   displaySetBrightness(brightness);
+  displaySetOnOff(RUNTIME_BRIGHTNESS.sw);
+  if (brightness != brightnessPrevious)
+    mqttNotifyBrightnessChanged(brightness);
+  brightnessPrevious = brightness;
 }

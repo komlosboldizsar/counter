@@ -6,6 +6,7 @@
 #include "device.h"
 #include "mywifi.h"
 #include "mqtt.h"
+#include "mqtt-ha.h"
 #include "brightness.h"
 #include "ota.h"
 #include "telnet.h"
@@ -14,6 +15,7 @@ SettingsManager* SETTINGS[] = {
   &SM_DEVICE,
   &SM_WIFI,
   &SM_MQTT,
+  &SM_MQTT_HA,
   &SM_BRIGHTNESS,
   &SM_RT_BRIGHTNESS,
   &SM_OTA,

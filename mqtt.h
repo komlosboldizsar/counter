@@ -28,5 +28,9 @@ extern SettingsMqtt SETTINGS_MQTT;
 extern SettingsManager SM_MQTT;
 
 void mqttInit();
+void mqttMainLoop();
+
+void mqttNotifyBrightnessChanged(int value);
+void mqttNotifyIlluminanceChanged(int value);
 
 #endif

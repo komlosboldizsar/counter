@@ -40,3 +40,10 @@ void displayClear(int dispIdx) {
 void displaySetBrightness(uint8_t brightness) {
   display.setBrightAll(brightness);
 }
+
+void displaySetOnOff(uint8_t on) {
+  if (on)
+    display.onAll();
+  else
+    display.offAll();
+}

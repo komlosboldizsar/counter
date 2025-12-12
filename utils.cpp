@@ -23,3 +23,28 @@ void concat5(char* buffer, const char* str1, const char* str2, const char* str3,
   if (str5 != NULL)
     pBuffer = strcat2(pBuffer, str5);
 }
+
+int satoi(const char* str, bool* ok) {
+  *ok = false;
+  bool minus = false;
+  if (*str == '+')
+    str++;
+  if (*str == '-') {
+    str++;
+    minus = true;
+  }
+  if (*str == '\0')
+    return 0;
+  int value = 0;
+  while (*str != '\0') {
+    if ((*str >= '0') && (*str <= '9')) {
+      value *= 10;
+      value += *str - '0';
+    } else {
+      return 0;
+    }
+    str++;
+  }
+  *ok = true;
+  return value;
+}

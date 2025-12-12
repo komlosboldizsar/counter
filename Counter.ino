@@ -10,6 +10,7 @@
 #include "mywifi.h"
 #include "improv.h"
 #include "mqtt.h"
+#include "mqtt-strings.h"
 #include "device.h"
 #include "mymdns.h"
 #include "ota.h"
@@ -19,6 +20,7 @@ unsigned long programStart;
 unsigned long loopCounter = 0;
 
 void setup() {
+  mqttMacGenerate();
   serialInit();
   Serial.println("");
   Serial.println("");
@@ -36,12 +38,15 @@ void setup() {
   programStart = millis();
 }
 
+bool httped = false;
+
 void loop() {
 
   unsigned long loopStart = millis();
 
   serialRead();
   brightnessUpdate(loopCounter & 0x0F == 0x0F);
+  mqttMainLoop();
   settingsMainLoop();
   otaMainLoop();
   telnetMainLoop();

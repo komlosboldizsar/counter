@@ -9,5 +9,6 @@ void displayDigit(int dispIdx, int pos, uint8_t a, bool aDp);
 void displayDashes(int display, int count);
 void displayClear(int dispIdx = -1);
 void displaySetBrightness(uint8_t brightness);
+void displaySetOnOff(uint8_t on);
 
 #endif
