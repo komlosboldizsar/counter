@@ -181,7 +181,6 @@ void mqttOnMessageEmptyCallback(const std::string &topicSTR, const std::string &
 
 void onMqttConnect(esp_mqtt_client_handle_t client) // can't rename
 {
-  Serial.println(mqttBaseTopicWildcard);
   mqttClient.subscribe(mqttBaseTopicWildcard, mqttOnMessageEmptyCallback, 0);
   mqttHaAutoDisconvery();
   mqttClient.publish(mqttAvailabilityTopic, "online", 0, true);
