@@ -1,8 +1,5 @@
 #include "improv.h"
-#include <BLEDevice.h>
-#include <BLEServer.h>
-#include <BLEUtils.h>
-#include <BLE2902.h>
+#include "NimBLEDevice.h"
 #include "mywifi.h"
 #include "wifi.h"
 #include "device.h"
@@ -263,35 +260,35 @@ void improvInit() {
   BLEService *improvService = improvServer->createService("00467768-6228-2272-4663-277478268000");
 
   // Characteristic: CURRENT STATE
-  improvCharacteristicCurrentState = improvService->createCharacteristic("00467768-6228-2272-4663-277478268001", BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_READ);
+  improvCharacteristicCurrentState = improvService->createCharacteristic("00467768-6228-2272-4663-277478268001", NIMBLE_PROPERTY::NOTIFY | NIMBLE_PROPERTY::READ);
   improvSetCurrentState(IMPROV_CS_AUTHORIZED);
-  improvCharacteristicCurrentState->addDescriptor(new BLE2902());
+  improvCharacteristicCurrentState->addDescriptor(new NimBLE2904());
 
   // Characteristic: ERROR STATE
-  improvCharacteristicErrorState = improvService->createCharacteristic("00467768-6228-2272-4663-277478268002", BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_READ);
+  improvCharacteristicErrorState = improvService->createCharacteristic("00467768-6228-2272-4663-277478268002", NIMBLE_PROPERTY::NOTIFY | NIMBLE_PROPERTY::READ);
   improvSetErrorState(IMPROV_ES_NOERROR);
-  improvCharacteristicErrorState->addDescriptor(new BLE2902());
+  improvCharacteristicErrorState->addDescriptor(new NimBLE2904());
 
   // Characteristic: RPC COMMAND
-  improvCharacteristicRpcCommand = improvService->createCharacteristic("00467768-6228-2272-4663-277478268003", BLECharacteristic::PROPERTY_WRITE);
+  improvCharacteristicRpcCommand = improvService->createCharacteristic("00467768-6228-2272-4663-277478268003", NIMBLE_PROPERTY::WRITE);
   improvCharacteristicRpcCommand->setCallbacks(new ImprovCharacteristicRpcCommandCallbacks());
-  improvCharacteristicRpcCommand->addDescriptor(new BLE2902());
+  improvCharacteristicRpcCommand->addDescriptor(new NimBLE2904());
 
   // Characteristic: RPC RESULT
-  improvCharacteristicRpcResult = improvService->createCharacteristic("00467768-6228-2272-4663-277478268004", BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_READ);
-  improvCharacteristicRpcResult->addDescriptor(new BLE2902());
+  improvCharacteristicRpcResult = improvService->createCharacteristic("00467768-6228-2272-4663-277478268004", NIMBLE_PROPERTY::NOTIFY | NIMBLE_PROPERTY::READ);
+  improvCharacteristicRpcResult->addDescriptor(new NimBLE2904());
 
   // Characteristic: CAPS
-  improvCharacteristicCaps = improvService->createCharacteristic("00467768-6228-2272-4663-277478268005", BLECharacteristic::PROPERTY_READ);
+  improvCharacteristicCaps = improvService->createCharacteristic("00467768-6228-2272-4663-277478268005", NIMBLE_PROPERTY::READ);
   int improvCharacteristicCapsValue = 1;
   improvCharacteristicCaps->setValue(improvCharacteristicCapsValue);
-  improvCharacteristicCaps->addDescriptor(new BLE2902());
+  improvCharacteristicCaps->addDescriptor(new NimBLE2904());
 
   improvService->start();
 
-  char bleSvcData[] = {1, 1, 0xFE, 0xFE, 0xFE, 0xFE};
+  uint8_t bleSvcData[] = {1, 1, 0xFE, 0xFE, 0xFE, 0xFE};
   BLEAdvertisementData bleAdvData;
-  bleAdvData.setServiceData(BLEUUID("4677"), String(bleSvcData));
+  bleAdvData.setServiceData(NimBLEUUID((uint8_t*)"4677", 4), bleSvcData, sizeof(bleSvcData)/sizeof(uint8_t));
   improvServer->getAdvertising()->addServiceUUID("00467768-6228-2272-4663-277478268000");
   improvServer->getAdvertising()->start();
   improvServer->getAdvertising()->setAdvertisementData(bleAdvData);
