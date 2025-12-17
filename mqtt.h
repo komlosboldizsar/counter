@@ -9,14 +9,23 @@
 #define MQTT_TOPIC_MAXLENGTH     16
 
 #define SETTING_MQTT            "mqtt"
+#define SETTING_MQTT_CONNTYPE   "conntype"
+#define SETTING_MQTT_SECURE     "secure"
 #define SETTING_MQTT_BROKER     "broker"
 #define SETTING_MQTT_PORT       "port"
 #define SETTING_MQTT_USER       "user"
 #define SETTING_MQTT_PASSWORD   "password"
 #define SETTING_MQTT_TOPIC      "topic"
 
+enum MqttConnType {
+  MQTTCT_MQTT,
+  MQTTCT_WS
+};
+
 struct SettingsMqtt {
 public:
+  int conntype;
+  bool secure;
   char broker[MQTT_BROKER_MAXLENGTH+1];
   int port;
   char user[MQTT_USER_MAXLENGTH+1];
