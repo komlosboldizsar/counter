@@ -16,6 +16,8 @@ const char TOPIC_TEXT[] = "text";
 
 const char MQTT_ON[] = "ON";
 const char MQTT_OFF[] = "OFF";
+const char MQTT_ONLINE[] = "online";
+const char MQTT_OFFLINE[] = "offline";
 const char MQTT_RESET[] = "reset";
 
 const char HEX_CHRS[] = "0123456789ABCDEF";

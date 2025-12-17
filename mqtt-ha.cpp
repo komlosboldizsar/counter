@@ -9,7 +9,7 @@
 extern ESP32MQTTClient mqttClient;
 
 #define CONCAT_TOPIC(...)           CONCAT(topic, 128, __VA_ARGS__)
-#define PUBLISH()                   mqttClient.publish(topic, buffer, 0, true);
+#define PUBLISH()                   mqttClient.publish(topic, buffer, 0, false);
 
 void mqttHaAutoDiscoveryLight() {
 
@@ -117,11 +117,32 @@ void mqttHaAutoDiscoveryReset() {
 
 }
 
-void mqttHaAutoDisconvery() {
+void mqttHaAutoDiscovery() {
   mqttHaAutoDiscoveryLight();
   mqttHaAutoDiscoveryAutobrightness();
   mqttHaAutoDiscoveryIlluminance();
   mqttHaAutoDiscoveryReset();
+}
+
+void mqttHaOnStatusMessage(const std::string &topicSTR, const std::string &payloadSTR) {
+  const char* payload = payloadSTR.c_str();
+  if (strcmp(payload, MQTT_ONLINE) == 0)
+    mqttHaAutoDiscovery();
+}
+
+void mqttHaAutoDiscoveryStart() {
+
+  if (!SETTINGS_MQTT_HA.enable)
+    return;
+
+  char mqttHaStatusTopic[MQTT_HA_DISCOVERYTOPIC_MAXLENGTH+16+1];
+  strcpy(mqttHaStatusTopic, SETTINGS_MQTT_HA.discoverytopic);
+  strcat(mqttHaStatusTopic, "/");
+  strcat(mqttHaStatusTopic, "status");
+  mqttClient.subscribe(mqttHaStatusTopic, mqttHaOnStatusMessage, 0);
+
+  mqttHaAutoDiscovery();
+
 }
 
 /* Setting custom - mqttha.friendlyname */
@@ -136,7 +157,7 @@ void svm_mqttha_friendlyname_afterSet(SettingValueManager* svm, const char* argu
     svm_mqttha_friendlyname_factory(svm);
     outputFunc("mqttha.friendlyname set to factory default: ");
     outputFunc(SETTINGS_MQTT_HA.friendlyname);
-	outputFunc("\r\n");
+	  outputFunc("\r\n");
   }
 }
 
@@ -148,8 +169,9 @@ void svm_mqttha_friendlyname_initializer(SettingValueManager* svm)  {
 /* Settings */
 SettingsMqttHa SETTINGS_MQTT_HA;
 
+SettingValueManagerBool SVM_MQTTHA_ENABLE(SETTING_MQTT_HA_ENABLE, &SETTINGS_MQTT_HA.enable, false);
 SettingValueManagerString SVM_MQTTHA_DISCOVERYTOPIC(SETTING_MQTT_HA_DISCOVERYTOPIC, SETTINGS_MQTT_HA.discoverytopic, "homeassistant", -1, MQTT_HA_DISCOVERYTOPIC_MAXLENGTH);
 SettingValueManagerString SVM_MQTTHA_FRIENDLYNAME(SETTING_MQTT_HA_FRIENDLYNAME, SETTINGS_MQTT_HA.friendlyname, "counter_xxxxxxxxxxxx", -1, MQTT_HA_FRIENDLYNAME_MAXLENGTH, svm_mqttha_friendlyname_initializer);
 
-SettingValueManager* SM_MQTT_HA_MEMBERS[] = { &SVM_MQTTHA_DISCOVERYTOPIC, &SVM_MQTTHA_FRIENDLYNAME, NULL };
+SettingValueManager* SM_MQTT_HA_MEMBERS[] = { &SVM_MQTTHA_ENABLE, &SVM_MQTTHA_DISCOVERYTOPIC, &SVM_MQTTHA_FRIENDLYNAME, NULL };
 SettingsManager SM_MQTT_HA(SETTING_MQTT_HA, LONGTIME, SETTINGS_DATA(SETTINGS_MQTT_HA), SM_MQTT_HA_MEMBERS);

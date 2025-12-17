@@ -141,10 +141,19 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
   // Convert payload
   const char* payload = payloadSTR.c_str();
 
+  if ((strcmp(topicPieces[0], TOPIC_TEXT) == 0) && (topicPieceCount > 1)) {
+    bool displayIdxOk;
+    int displayIdx = satoi(topicPieces[1], &displayIdxOk);
+    if (displayIdxOk && (displayIdx >= 0))
+      mqttProcessMessageForDisplay(displayIdx, payload);
+    return;
+  }
+
   if (strcmp(topicPieces[0], TOPIC_AUTOBRIGHTNESS_SET) == 0) {
     RUNTIME_BRIGHTNESS.isAuto = (strcmp(payload, MQTT_ON) == 0) & 1;
     mqttPublishAutobrightnessChanged();
     SM_RT_BRIGHTNESS.runtimeChanged();
+    return;
   }
 
   if (strcmp(topicPieces[0], TOPIC_BRIGHTNESS_SET) == 0) {
@@ -153,25 +162,21 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
     mqttPublishAutobrightnessChanged();
     RUNTIME_BRIGHTNESS.manual = brightnessValue;
     SM_RT_BRIGHTNESS.runtimeChanged();
+    return;
   }
 
   if (strcmp(topicPieces[0], TOPIC_SWITCH_SET) == 0) {
     RUNTIME_BRIGHTNESS.sw = (strcmp(payload, MQTT_ON) == 0) & 1;
     mqttPublishSwitchChanged();
     SM_RT_BRIGHTNESS.runtimeChanged();
+    return;
   }
 
   if (strcmp(topicPieces[0], TOPIC_RESET) == 0) {
     if (strcmp(payload, MQTT_RESET) == 0) {
       mqttPrepareReset = true;
     }
-  }
-
-  if ((strcmp(topicPieces[0], TOPIC_TEXT) == 0) && (topicPieceCount > 1)) {
-    bool displayIdxOk;
-    int displayIdx = satoi(topicPieces[1], &displayIdxOk);
-    if (displayIdxOk && (displayIdx >= 0))
-      mqttProcessMessageForDisplay(displayIdx, payload);
+    return;
   }
 
 }
@@ -182,8 +187,8 @@ void mqttOnMessageEmptyCallback(const std::string &topicSTR, const std::string &
 void onMqttConnect(esp_mqtt_client_handle_t client) // can't rename
 {
   mqttClient.subscribe(mqttBaseTopicWildcard, mqttOnMessageEmptyCallback, 0);
-  mqttHaAutoDisconvery();
-  mqttClient.publish(mqttAvailabilityTopic, "online", 0, true);
+  mqttHaAutoDiscoveryStart();
+  mqttClient.publish(mqttAvailabilityTopic, MQTT_ONLINE, 0, true);
   mqttPublishAutobrightnessChanged();
   mqttPublishBrightnessChanged();
   mqttPublishSwitchChanged();
@@ -202,7 +207,7 @@ void mqttInit() {
   mqttClient.setMqttClientName(SETTINGS_DEVICE.name);
   mqttClient.setKeepAlive(30);
   mqttClient.setOnMessageCallback(mqttOnMessage);
-  mqttClient.enableLastWillMessage(mqttAvailabilityTopic, "offline", true);
+  mqttClient.enableLastWillMessage(mqttAvailabilityTopic, MQTT_OFFLINE, true);
   mqttClient.loopStart();
 }
 

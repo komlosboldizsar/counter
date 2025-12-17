@@ -15,6 +15,8 @@ extern const char TOPIC_TEXT[];
 
 extern const char MQTT_ON[];
 extern const char MQTT_OFF[];
+extern const char MQTT_ONLINE[];
+extern const char MQTT_OFFLINE[];
 extern const char MQTT_RESET[];
 
 extern char mqttMacClean[];
