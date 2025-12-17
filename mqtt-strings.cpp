@@ -1,8 +1,8 @@
 #include "mqtt-strings.h"
+#include "mqtt.h"
 #include "esp_mac.h"
 #include <Arduino.h>
 
-const char TOPIC_BASE[] = "counter";
 const char TOPIC_AVAILABILITY[] = "availability";
 const char TOPIC_AUTOBRIGHTNESS_SET[] = "autobrightnessSet";
 const char TOPIC_AUTOBRIGHTNESS_STATE[] = "autobrightnessState";
@@ -26,13 +26,12 @@ char mqttMacClean[13];
 
 int mqttBaseTopicLength;
 
-char mqttBaseTopic[sizeof(TOPIC_BASE)+sizeof(mqttMacClean)];
-char mqttBaseTopicWildcard[sizeof(mqttBaseTopic)+2];
-char mqttAvailabilityTopic[sizeof(mqttBaseTopic)+sizeof(TOPIC_AVAILABILITY)];
-char mqttAutobrightnessStateTopic[sizeof(mqttBaseTopic)+sizeof(TOPIC_AUTOBRIGHTNESS_STATE)];
-char mqttBrightnessStateTopic[sizeof(mqttBaseTopic)+sizeof(TOPIC_BRIGHTNESS_STATE)];
-char mqttSwitchStateTopic[sizeof(mqttBaseTopic)+sizeof(TOPIC_SWITCH_STATE)];
-char mqttIlluminanceStateTopic[sizeof(mqttBaseTopic)+sizeof(TOPIC_ILLUMINANCE_STATE)];
+char mqttBaseTopicWildcard[MQTT_TOPIC_MAXLENGTH+1+2];
+char mqttAvailabilityTopic[MQTT_TOPIC_MAXLENGTH+1+sizeof(TOPIC_AVAILABILITY)];
+char mqttAutobrightnessStateTopic[MQTT_TOPIC_MAXLENGTH+1+sizeof(TOPIC_AUTOBRIGHTNESS_STATE)];
+char mqttBrightnessStateTopic[MQTT_TOPIC_MAXLENGTH+1+sizeof(TOPIC_BRIGHTNESS_STATE)];
+char mqttSwitchStateTopic[MQTT_TOPIC_MAXLENGTH+1+sizeof(TOPIC_SWITCH_STATE)];
+char mqttIlluminanceStateTopic[MQTT_TOPIC_MAXLENGTH+1+sizeof(TOPIC_ILLUMINANCE_STATE)];
 
 void mqttMacGenerate() {
   uint8_t macHex[6];
@@ -48,31 +47,28 @@ void mqttMacGenerate() {
 
 void mqttStringsGenerate() {
 
-  strcpy(mqttBaseTopic, TOPIC_BASE);
-  strcat(mqttBaseTopic, "/");
-  strcat(mqttBaseTopic, mqttMacClean);
-  mqttBaseTopicLength = strlen(mqttBaseTopic);
+  mqttBaseTopicLength = strlen(SETTINGS_MQTT.topic);
   
-  strcpy(mqttBaseTopicWildcard, mqttBaseTopic);
+  strcpy(mqttBaseTopicWildcard, SETTINGS_MQTT.topic);
   strcat(mqttBaseTopicWildcard, "/#");
 
-  strcpy(mqttAvailabilityTopic, mqttBaseTopic);
+  strcpy(mqttAvailabilityTopic, SETTINGS_MQTT.topic);
   strcat(mqttAvailabilityTopic, "/");
   strcat(mqttAvailabilityTopic, TOPIC_AVAILABILITY);
 
-  strcpy(mqttAutobrightnessStateTopic, mqttBaseTopic);
+  strcpy(mqttAutobrightnessStateTopic, SETTINGS_MQTT.topic);
   strcat(mqttAutobrightnessStateTopic, "/");
   strcat(mqttAutobrightnessStateTopic, TOPIC_AUTOBRIGHTNESS_STATE);
 
-  strcpy(mqttBrightnessStateTopic, mqttBaseTopic);
+  strcpy(mqttBrightnessStateTopic, SETTINGS_MQTT.topic);
   strcat(mqttBrightnessStateTopic, "/");
   strcat(mqttBrightnessStateTopic, TOPIC_BRIGHTNESS_STATE);
 
-  strcpy(mqttSwitchStateTopic, mqttBaseTopic);
+  strcpy(mqttSwitchStateTopic, SETTINGS_MQTT.topic);
   strcat(mqttSwitchStateTopic, "/");
   strcat(mqttSwitchStateTopic, TOPIC_SWITCH_STATE);
 
-  strcpy(mqttIlluminanceStateTopic, mqttBaseTopic);
+  strcpy(mqttIlluminanceStateTopic, SETTINGS_MQTT.topic);
   strcat(mqttIlluminanceStateTopic, "/");
   strcat(mqttIlluminanceStateTopic, TOPIC_ILLUMINANCE_STATE);
   

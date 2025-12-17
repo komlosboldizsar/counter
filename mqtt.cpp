@@ -106,7 +106,7 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
   // Check base topic
   const char* topic = topicSTR.c_str();
 
-  if ((strncmp(topic, mqttBaseTopic, mqttBaseTopicLength) != 0) || (topic[mqttBaseTopicLength] != '/'))
+  if ((strncmp(topic, SETTINGS_MQTT.topic, mqttBaseTopicLength) != 0) || (topic[mqttBaseTopicLength] != '/'))
     return;
 
   // Tokenize
@@ -259,7 +259,6 @@ void mqttInit() {
   char mqttPort[5+1];
   itoa(SETTINGS_MQTT.port, mqttPort, 10);
   strcat(mqttURI, mqttPort);
-
 
   mqttClient.setURI(mqttURI, SETTINGS_MQTT.user, SETTINGS_MQTT.password);
   mqttClient.setMqttClientName(SETTINGS_DEVICE.name);

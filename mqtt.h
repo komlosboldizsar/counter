@@ -6,7 +6,7 @@
 #define MQTT_BROKER_MAXLENGTH    64
 #define MQTT_USER_MAXLENGTH      32
 #define MQTT_PASSWORD_MAXLENGTH  32
-#define MQTT_TOPIC_MAXLENGTH     16
+#define MQTT_TOPIC_MAXLENGTH     32
 
 #define SETTING_MQTT            "mqtt"
 #define SETTING_MQTT_CONNTYPE   "conntype"
