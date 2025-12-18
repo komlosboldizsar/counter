@@ -48,3 +48,13 @@ int satoi(const char* str, bool* ok) {
   *ok = true;
   return value;
 }
+
+int hexChrToInt(const char chr) {
+  if ((chr >= '0') && (chr <= '9'))
+    return chr - '0';
+  if ((chr >= 'a') && (chr <= 'f'))
+    return chr - 'a' + 10;
+  if ((chr >= 'A') && (chr <= 'F'))
+    return chr - 'A' + 10;
+  return -1;
+}

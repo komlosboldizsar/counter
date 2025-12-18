@@ -7,6 +7,7 @@
 #include "settings.h"
 #include "display.h"
 #include "device.h"
+#include "display.h"
 #include "brightness.h"
 #include <WiFi.h>
 #include "ESP32MQTTClient.h"
@@ -55,48 +56,6 @@ void mqttNotifyIlluminanceChanged(int value) {
 }
 
 /* Event handlers */
-void mqttProcessMessageForDisplay(int idx, const char* message) {
-
-  bool valid = true;
-  const char* mPtr = message;
-  int numbers = 0;
-  int decimals = 0;
-  int firstDecimal = -1;
-
-  while (*mPtr != '\0') {
-    if ((*mPtr >= '0') && (*mPtr <= '9')) {
-      numbers++;
-    } else if (*mPtr == '.') {
-      decimals++;
-      if (decimals == 1)
-        firstDecimal = mPtr - message;
-    } else {
-      valid = false;
-    }
-    mPtr++;
-  }
-
-  if ((decimals > 1) || (numbers > 4) || (firstDecimal == 0))
-    valid = false;
-
-  if (!valid)
-    return;
-
-  displayClear(idx);
-
-  mPtr = message;
-  int usefulLength = numbers + decimals;
-  int c = 0;
-  while (c < numbers) {
-    bool dp = (c+1 == firstDecimal);
-    displayDigit(idx, 4 - numbers + c, *mPtr - '0', dp);
-    c++;
-    mPtr++;
-    if (dp)
-      mPtr++;
-  }
-
-}
 
 #define MAX_TOPIC_PIECES 4
 #define MAX_TOPIC_PIECE_LENGTH 32
@@ -149,7 +108,7 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
     bool displayIdxOk;
     int displayIdx = satoi(topicPieces[1], &displayIdxOk);
     if (displayIdxOk && (displayIdx >= 0))
-      mqttProcessMessageForDisplay(displayIdx, payload);
+      displaySetData(displayIdx, payload);
     return;
   }
 

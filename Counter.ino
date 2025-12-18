@@ -45,6 +45,7 @@ void loop() {
   unsigned long loopStart = millis();
 
   serialRead();
+  displayMainLoop();
   brightnessUpdate(loopCounter & 0x0F == 0x0F);
   mqttMainLoop();
   settingsMainLoop();

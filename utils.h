@@ -6,6 +6,7 @@
 char* strcat2(char* dst, const char* src);
 void concat5(char* buffer, const char* str1 = NULL, const char* str2 = NULL, const char* str3 = NULL, const char* str4 = NULL, const char* str5 = NULL);
 int satoi(const char* str, bool* ok);
+int hexChrToInt(const char chr);
 
 #define CONCAT_EX(TGT,TGTLEN,...)		TGT[0] = '\0'; \
 										concat5(TGT, __VA_ARGS__);
