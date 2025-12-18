@@ -203,6 +203,10 @@ bool mqttLoadCerts() {
   return true; 
 }
 
+bool mqttIsConnected() {
+  return mqttClient.isConnected();
+}
+
 /* Init */
 void mqttInit() {
 
