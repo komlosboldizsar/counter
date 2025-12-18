@@ -5,7 +5,7 @@
 #include "Esp.h"
 
 void deviceIntroduce(void(*outputFunc)(const char* message)) {
-  outputFunc("***** CLOCK 1.0\" [");
+  outputFunc("***** COUNTER [");
   outputFunc(SETTINGS_DEVICE.name);
   outputFunc("] *****\r\n");
 }
