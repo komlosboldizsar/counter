@@ -194,11 +194,11 @@ bool mqttLoadCert(char* target, const char* name) {
 
 bool mqttLoadCerts() {
   LittleFS.begin(true);
-  if (!mqttLoadCert(mqttCaCert, "ca"))
+  if (!mqttLoadCert(mqttCaCert, "ca.crt"))
     return false;
-  if (!mqttLoadCert(mqttClientCert, "client"))
+  if (!mqttLoadCert(mqttClientCert, "client.crt"))
     return false;
-  if (!mqttLoadCert(mqttKey, "key"))
+  if (!mqttLoadCert(mqttKey, "client.key"))
     return false;
   return true; 
 }
