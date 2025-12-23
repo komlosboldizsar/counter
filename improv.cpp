@@ -4,7 +4,7 @@
 #include "wifi.h"
 #include "device.h"
 
-#define DEBUG_IMPROV
+#define DEBUG_IMPROV 1
 
 #define IMPROV_CS_AUTHREQ           0x01
 #define IMPROV_CS_AUTHORIZED        0x02
@@ -43,16 +43,16 @@ void improvSetErrorState(uint8_t errorState) {
   improvCharacteristicErrorState->setValue(__errorState);
 }
 
-class ImprovServerCallbacks : public BLEServerCallbacks {
+class ImprovServerCallbacks : public NimBLEServerCallbacks {
 
-  void onConnect(BLEServer *server) {
+  void onConnect(NimBLEServer* server, NimBLEConnInfo& connInfo) {
     #ifdef DEBUG_IMPROV
     Serial.println("BLE connected.");
     #endif
     improvDeviceConnected = true;
   }
 
-  void onDisconnect(BLEServer *server) {
+  void onDisconnect(NimBLEServer* server, NimBLEConnInfo& connInfo, int reason) {
     #ifdef DEBUG_IMPROV
     Serial.println("BLE disconnected.");
     #endif
@@ -62,7 +62,7 @@ class ImprovServerCallbacks : public BLEServerCallbacks {
 
 };
 
-class ImprovCharacteristicRpcCommandCallbacks : public BLECharacteristicCallbacks {
+class ImprovCharacteristicRpcCommandCallbacks : public NimBLECharacteristicCallbacks {
 
   int expectedFullStringLength = -1;
   char receivedFullString[128+1];
@@ -212,7 +212,7 @@ class ImprovCharacteristicRpcCommandCallbacks : public BLECharacteristicCallback
 
   }
 
-  void onWrite(BLECharacteristic *characteristic) {
+  void onWrite(NimBLECharacteristic* characteristic, NimBLEConnInfo& connInfo) {
 
     String rxValue = characteristic->getValue();
 
@@ -254,44 +254,45 @@ class ImprovCharacteristicRpcCommandCallbacks : public BLECharacteristicCallback
 
 void improvInit() {
   
-  BLEDevice::init(SETTINGS_DEVICE.name);
-  improvServer = BLEDevice::createServer();
+  NimBLEDevice::init(SETTINGS_DEVICE.name);
+  improvServer = NimBLEDevice::createServer();
   improvServer->setCallbacks(new ImprovServerCallbacks());
-  BLEService *improvService = improvServer->createService("00467768-6228-2272-4663-277478268000");
+  const char* bleSvcUuidStr = "00467768-6228-2272-4663-277478268000";
+  NimBLEUUID bleSvcUuid = NimBLEUUID(bleSvcUuidStr);
+  NimBLEService *improvService = improvServer->createService(bleSvcUuidStr);
 
   // Characteristic: CURRENT STATE
   improvCharacteristicCurrentState = improvService->createCharacteristic("00467768-6228-2272-4663-277478268001", NIMBLE_PROPERTY::NOTIFY | NIMBLE_PROPERTY::READ);
   improvSetCurrentState(IMPROV_CS_AUTHORIZED);
-  improvCharacteristicCurrentState->addDescriptor(new NimBLE2904());
+  improvCharacteristicCurrentState->createDescriptor(NimBLEUUID((uint16_t)0x2902));
 
   // Characteristic: ERROR STATE
   improvCharacteristicErrorState = improvService->createCharacteristic("00467768-6228-2272-4663-277478268002", NIMBLE_PROPERTY::NOTIFY | NIMBLE_PROPERTY::READ);
   improvSetErrorState(IMPROV_ES_NOERROR);
-  improvCharacteristicErrorState->addDescriptor(new NimBLE2904());
+  improvCharacteristicCurrentState->createDescriptor(NimBLEUUID((uint16_t)0x2902));
 
   // Characteristic: RPC COMMAND
   improvCharacteristicRpcCommand = improvService->createCharacteristic("00467768-6228-2272-4663-277478268003", NIMBLE_PROPERTY::WRITE);
   improvCharacteristicRpcCommand->setCallbacks(new ImprovCharacteristicRpcCommandCallbacks());
-  improvCharacteristicRpcCommand->addDescriptor(new NimBLE2904());
+  improvCharacteristicCurrentState->createDescriptor(NimBLEUUID((uint16_t)0x2902));
 
   // Characteristic: RPC RESULT
   improvCharacteristicRpcResult = improvService->createCharacteristic("00467768-6228-2272-4663-277478268004", NIMBLE_PROPERTY::NOTIFY | NIMBLE_PROPERTY::READ);
-  improvCharacteristicRpcResult->addDescriptor(new NimBLE2904());
+  improvCharacteristicCurrentState->createDescriptor(NimBLEUUID((uint16_t)0x2902));
 
   // Characteristic: CAPS
   improvCharacteristicCaps = improvService->createCharacteristic("00467768-6228-2272-4663-277478268005", NIMBLE_PROPERTY::READ);
-  int improvCharacteristicCapsValue = 1;
+  int improvCharacteristicCapsValue = 0;
   improvCharacteristicCaps->setValue(improvCharacteristicCapsValue);
-  improvCharacteristicCaps->addDescriptor(new NimBLE2904());
+  improvCharacteristicCurrentState->createDescriptor(NimBLEUUID((uint16_t)0x2902));
 
   improvService->start();
 
-  uint8_t bleSvcData[] = {1, 1, 0xFE, 0xFE, 0xFE, 0xFE};
-  BLEAdvertisementData bleAdvData;
-  bleAdvData.setServiceData(NimBLEUUID((uint8_t*)"4677", 4), bleSvcData, sizeof(bleSvcData)/sizeof(uint8_t));
-  improvServer->getAdvertising()->addServiceUUID("00467768-6228-2272-4663-277478268000");
+  uint8_t bleSvcData[] = {1, 0, 0xFE, 0xFE, 0xFE, 0xFE};
+  improvServer->getAdvertising()->addServiceUUID(bleSvcUuid);
+  improvServer->getAdvertising()->setName(SETTINGS_DEVICE.name);
+  improvServer->getAdvertising()->setServiceData(bleSvcUuid, bleSvcData, sizeof(bleSvcData)/sizeof(uint8_t));
   improvServer->getAdvertising()->start();
-  improvServer->getAdvertising()->setAdvertisementData(bleAdvData);
 
 }
 
