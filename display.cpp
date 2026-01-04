@@ -18,8 +18,7 @@ const static uint8_t SEGMENTS_SPEC[] = {
 #define IMAGE_NOTHING   0
 #define IMAGE_DASH      1
 
-uint8_t segments[MAX_NUM_DISPLAYS][DIGITS_PER_DISPLAY];
-DotForcing dotForcing[MAX_NUM_DISPLAYS][DIGITS_PER_DISPLAY];
+DisplayData displayData[MAX_NUM_DISPLAYS];
 
 void displayInit() {
   display.setBrightness(15);
@@ -31,8 +30,8 @@ void displayMainLoop() {
   for (int digitIdx = 0; digitIdx < DIGITS_PER_DISPLAY; digitIdx++) {
     display.startWrite();
     for (int displayIdx = SETTINGS_DISPLAY.count-1; displayIdx >= 0; displayIdx--) {
-      byte seg = segments[displayIdx][digitIdx];
-      DotForcing df = dotForcing[displayIdx][digitIdx];
+      byte seg = displayData[displayIdx].segments[digitIdx];
+      DotForcing df = displayData[displayIdx].dotForcing[digitIdx];
       if (df == DOT_FORCE_OFF)
         seg &= 0x7F;
       else if (df == DOT_FORCE_ON)
@@ -82,7 +81,7 @@ bool displaySetDataNatural(int dispIdx, const char* data) {
     return false;
 
   for (int i = 0; i < DIGITS_PER_DISPLAY - reqDigits; i++)
-    segments[dispIdx][i] = SEGMENTS_SPEC[IMAGE_NOTHING];
+    displayData[dispIdx].segments[i] = SEGMENTS_SPEC[IMAGE_NOTHING];
 
   dPtr = dNumber;
   int position = 0;
@@ -96,7 +95,7 @@ bool displaySetDataNatural(int dispIdx, const char* data) {
     } else if (!blindNumber) {
       segment = SEGMENTS_NUMBERS[*dPtr - '0'];
     }
-    segments[dispIdx][4 - reqDigits + position] = segment | (dp << 7);
+    displayData[dispIdx].segments[4 - reqDigits + position] = segment | (dp << 7);
     if (number != -1) {
       dPtr++;
       if (dp && !blindNumber) {
@@ -138,7 +137,7 @@ bool displaySetDataHex(int dispIdx, const char* data) {
     dPtr++;
     value += hexChrToInt(*dPtr);
     dPtr++;
-    segments[dispIdx][digitIdx] = value;
+    displayData[dispIdx].segments[digitIdx] = value;
   }
   return true;
 
@@ -153,7 +152,7 @@ void displaySetData(int dispIdx, const char* data) {
 }
 
 void displaySetDotForcing(int display, int digit, DotForcing df) {
-  dotForcing[display][digit] = df;
+  displayData[display].dotForcing[digit] = df;
 }
 
 void displayClearDotForcing(int display, int digit) {
@@ -167,20 +166,20 @@ void displayClearDotForcing(int display, int digit) {
       displayClearDotForcing(display, i);
     return;
   }
-  dotForcing[display][digit] = DOT_NO_FORCE;
+  displayData[display].dotForcing[digit] = DOT_NO_FORCE;
 }
 
 void displayClear(int dispIdx) {
   if (dispIdx == DISPLAY_IDX_ALL) {
     for (int displayIdx = 0; displayIdx < SETTINGS_DISPLAY.count; displayIdx++)
       for (int segmentIdx = 0; segmentIdx < DIGITS_PER_DISPLAY; segmentIdx++)
-        segments[displayIdx][segmentIdx] = SEGMENTS_SPEC[IMAGE_NOTHING];
+        displayData[displayIdx].segments[segmentIdx] = SEGMENTS_SPEC[IMAGE_NOTHING];
     return;
   }
   if ((dispIdx < 0) || (dispIdx >= MAX_NUM_DISPLAYS))
     return;
   for (int segmentIdx = 0; segmentIdx < DIGITS_PER_DISPLAY; segmentIdx++)
-    segments[dispIdx][segmentIdx] = SEGMENTS_SPEC[IMAGE_NOTHING];
+    displayData[dispIdx].segments[segmentIdx] = SEGMENTS_SPEC[IMAGE_NOTHING];
 }
 
 void displaySetBrightness(uint8_t brightness) {

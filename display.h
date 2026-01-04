@@ -25,6 +25,11 @@ enum DotForcing {
   DOT_FORCE_ON
 };
 
+struct DisplayData {
+  uint8_t segments[DIGITS_PER_DISPLAY];
+  DotForcing dotForcing[DIGITS_PER_DISPLAY];
+};
+
 void displayInit();
 void displayMainLoop();
 
