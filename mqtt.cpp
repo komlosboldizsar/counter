@@ -28,6 +28,18 @@ int mqttBrightnessStore = -1;
 int mqttIlluminanceStore = -1;
 bool mqttPrepareReset = false;
 
+struct mqttRetainedDisplayDataReceived {
+  bool text;
+  bool blink;
+  bool blinkSpeed;
+  bool blinkPhase;
+  bool blinkDutyCycle;
+};
+
+mqttRetainedDisplayDataReceived mqttRetainedDisplayDataReceived[MAX_NUM_DISPLAYS];
+bool mqttDisplayDataSubscribed;
+int mqttDisplayDataSubscribedCounter;
+
 /* Publishers */
 void mqttPublishBrightnessChanged() {
   char brightnessStr[8];
@@ -83,6 +95,21 @@ void mqttPublishDisplayBlinkDutyCycleChanged(uint8_t display) {
   int value = (int)displayData[display].blinkDutyCycle;
   if ((value >= 0) && (value < DBDC___end))
     PUBLISH(MQTT_BLINKDUTYCYCLES[value]);
+}
+
+void mqttPublishNotReceivedData() {
+  for (int i = 0; i < SETTINGS_DISPLAY.count; i++) {
+    if (!mqttRetainedDisplayDataReceived[i].text)
+      mqttPublishDisplayTextChanged(i);
+    if (!mqttRetainedDisplayDataReceived[i].blink)
+      mqttPublishDisplayBlinkChanged(i);
+    if (!mqttRetainedDisplayDataReceived[i].blinkSpeed)
+      mqttPublishDisplayBlinkSpeedChanged(i);
+    if (!mqttRetainedDisplayDataReceived[i].blinkPhase)
+      mqttPublishDisplayBlinkPhaseChanged(i);
+    if (!mqttRetainedDisplayDataReceived[i].blinkDutyCycle)
+      mqttPublishDisplayBlinkDutyCycleChanged(i);
+  }
 }
 
 /* Notifiers */
@@ -168,8 +195,10 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
   if ((strcmp(topicPieces[0], TOPIC_TEXT_SET) == 0) && (topicPieceCount > 1)) {
     bool displayIdxOk;
     int displayIdx = satoi(topicPieces[1], &displayIdxOk);
-    if (displayIdxOk && (displayIdx >= 0))
+    if (displayIdxOk && (displayIdx >= 0)) {
+      mqttRetainedDisplayDataReceived[displayIdx].text = true;
       displaySetData(displayIdx, payload);
+    }
     return;
   }
 
@@ -177,6 +206,7 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
     bool displayIdxOk;
     int displayIdx = satoi(topicPieces[1], &displayIdxOk);
     if (displayIdxOk && (displayIdx >= 0)) {
+      mqttRetainedDisplayDataReceived[displayIdx].blink = true;
       if (strcmp(payload, MQTT_ON) == 0) {
         displaySetBlink(displayIdx, true);
       } else if (strcmp(payload, MQTT_OFF) == 0) {
@@ -190,6 +220,7 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
     bool displayIdxOk;
     int displayIdx = satoi(topicPieces[1], &displayIdxOk);
     if (displayIdxOk && (displayIdx >= 0)) {
+      mqttRetainedDisplayDataReceived[displayIdx].blinkSpeed = true;
       for (int i = 0; i < DBS___end; i++) {
         if (strcmp(payload, MQTT_BLINKSPEEDS[i]) == 0) {
           displaySetBlinkSpeed(displayIdx, (DisplayBlinkSpeed)i);
@@ -204,6 +235,7 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
     bool displayIdxOk;
     int displayIdx = satoi(topicPieces[1], &displayIdxOk);
     if (displayIdxOk && (displayIdx >= 0)) {
+      mqttRetainedDisplayDataReceived[displayIdx].blinkPhase = true;
       for (int i = 0; i < DBP___end; i++) {
         if (strcmp(payload, MQTT_BLINKPHASES[i]) == 0) {
           displaySetBlinkPhase(displayIdx, (DisplayBlinkPhase)i);
@@ -218,6 +250,7 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
     bool displayIdxOk;
     int displayIdx = satoi(topicPieces[1], &displayIdxOk);
     if (displayIdxOk && (displayIdx >= 0)) {
+      mqttRetainedDisplayDataReceived[displayIdx].blinkDutyCycle = true;
       for (int i = 0; i < DBDC___end; i++) {
         if (strcmp(payload, MQTT_BLINKDUTYCYCLES[i]) == 0) {
           displaySetBlinkDutyCycle(displayIdx, (DisplayBlinkDutyCycle)i);
@@ -266,6 +299,7 @@ void mqttOnMessageEmptyCallback(const std::string &topicSTR, const std::string &
 void onMqttConnect(esp_mqtt_client_handle_t client) // can't rename
 {
   mqttClient.subscribe(mqttBaseTopicWildcard, mqttOnMessageEmptyCallback, 0);
+  mqttDisplayDataSubscribed = true;
   mqttHaAutoDiscoveryStart();
   mqttClient.publish(mqttAvailabilityTopic, MQTT_ONLINE, 0, true);
   mqttPublishAutobrightnessChanged();
@@ -274,6 +308,10 @@ void onMqttConnect(esp_mqtt_client_handle_t client) // can't rename
   // waiting for retained data, not overwriting with empty
   /* for (int i = 0; i < SETTINGS_DISPLAY.count; i++) {
     mqttPublishDisplayTextChanged(i);
+    mqttPublishDisplayBlinkChanged(i);
+    mqttPublishDisplayBlinkSpeedChanged(i);
+    mqttPublishDisplayBlinkPhaseChanged(i);
+    mqttPublishDisplayBlinkDutyCycleChanged(i);
   } */
 }
 
@@ -327,10 +365,23 @@ bool mqttIsConnected() {
   return mqttClient.isConnected();
 }
 
+void mqttRetainedDisplayDataReceivedReset() {
+  for (int i = 0; i < MAX_NUM_DISPLAYS; i++) {
+    mqttRetainedDisplayDataReceived[i].text = false;
+    mqttRetainedDisplayDataReceived[i].blink = false;
+    mqttRetainedDisplayDataReceived[i].blinkSpeed = false;
+    mqttRetainedDisplayDataReceived[i].blinkPhase = false;
+    mqttRetainedDisplayDataReceived[i].blinkDutyCycle = false;
+  }
+  bool mqttDisplayDataSubscribed = false;
+  int mqttDisplayDataSubscribedCounter = 0;
+}
+
 /* Init */
 void mqttInit() {
 
   mqttStringsGenerate();
+  mqttRetainedDisplayDataReceivedReset();
 
   char mqttURI[8+MQTT_BROKER_MAXLENGTH+1+5+1]; // 8: "mqtts://", 1: ":", 5: "65535", 1: "\0"
   strcpy(mqttURI, SETTINGS_MQTT.conntype == MQTTCT_WS ? OPTIONS_CONNTYPE[1] : OPTIONS_CONNTYPE[0]);
@@ -361,9 +412,26 @@ void mqttInit() {
 }
 
 /* Main loop */
+bool mqttWasConnected = false;
+
 void mqttMainLoop() {
+
   if (mqttPrepareReset)
     ESP.restart();
+
+  if (mqttDisplayDataSubscribed) {
+    int mqttDisplayDataSubscribedCounterLimit = LOOP_PER_SECOND*3;
+    if (mqttDisplayDataSubscribedCounter == mqttDisplayDataSubscribedCounterLimit)
+      mqttPublishNotReceivedData();
+    if (mqttDisplayDataSubscribedCounter <= mqttDisplayDataSubscribedCounterLimit)
+      mqttDisplayDataSubscribedCounter++;
+  }
+
+  bool mqttIsConnected = mqttClient.isConnected();
+  if (!mqttIsConnected && mqttWasConnected) // disconnected
+    mqttRetainedDisplayDataReceivedReset();
+  mqttWasConnected = mqttIsConnected;
+
 }
 
 /* Settings */
