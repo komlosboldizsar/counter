@@ -2,7 +2,7 @@
 #include "utils.h"
 #include <Arduino.h>
 
-char* jsonAddProperty(char* pBuffer, const char* name, bool first, bool quotes, const char* value1, const char* value2, const char* value3, const char* value4, const char* value5) {
+char* jsonAddProperty(char* pBuffer, const char* name, bool first, bool quotes, const char* value1, const char* value2, const char* value3, const char* value4, const char* value5, const char* value6, const char* value7) {
   if (!first)
     pBuffer = strcat2(pBuffer, ",");
   pBuffer = strcat2(pBuffer, "\"");
@@ -19,6 +19,10 @@ char* jsonAddProperty(char* pBuffer, const char* name, bool first, bool quotes, 
     pBuffer = strcat2(pBuffer, value4);
   if (value5 != NULL)
     pBuffer = strcat2(pBuffer, value5);
+  if (value6 != NULL)
+    pBuffer = strcat2(pBuffer, value6);
+  if (value7 != NULL)
+    pBuffer = strcat2(pBuffer, value7);
   if (quotes)
     pBuffer = strcat2(pBuffer, "\"");
   return pBuffer;

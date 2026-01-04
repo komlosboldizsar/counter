@@ -11,7 +11,7 @@ char* strcat2(char* dst, const char* src) {
   return dst;
 }
 
-void concat5(char* buffer, const char* str1, const char* str2, const char* str3, const char* str4, const char* str5) {
+void concat7(char* buffer, const char* str1, const char* str2, const char* str3, const char* str4, const char* str5, const char* str6, const char* str7) {
   char* pBuffer = buffer;
   pBuffer = strcat2(pBuffer, str1);
   if (str2 != NULL)
@@ -22,6 +22,10 @@ void concat5(char* buffer, const char* str1, const char* str2, const char* str3,
     pBuffer = strcat2(pBuffer, str4);
   if (str5 != NULL)
     pBuffer = strcat2(pBuffer, str5);
+  if (str6 != NULL)
+    pBuffer = strcat2(pBuffer, str6);
+  if (str7 != NULL)
+    pBuffer = strcat2(pBuffer, str7);
 }
 
 int satoi(const char* str, bool* ok) {

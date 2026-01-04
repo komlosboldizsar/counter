@@ -4,12 +4,12 @@
 #include <cstddef>
 
 char* strcat2(char* dst, const char* src);
-void concat5(char* buffer, const char* str1 = NULL, const char* str2 = NULL, const char* str3 = NULL, const char* str4 = NULL, const char* str5 = NULL);
+void concat7(char* buffer, const char* str1 = NULL, const char* str2 = NULL, const char* str3 = NULL, const char* str4 = NULL, const char* str5 = NULL, const char* str6 = NULL, const char* str7 = NULL);
 int satoi(const char* str, bool* ok);
 int hexChrToInt(const char chr);
 
 #define CONCAT_EX(TGT,TGTLEN,...)		TGT[0] = '\0'; \
-										concat5(TGT, __VA_ARGS__);
+										concat7(TGT, __VA_ARGS__);
 
 #define CONCAT(TGT,TGTLEN,...)			char TGT[TGTLEN]; \
 										CONCAT_EX(TGT, TGTLEN, __VA_ARGS__);

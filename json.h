@@ -4,7 +4,7 @@
 #include <cstddef>
 #include "utils.h"
 
-char* jsonAddProperty(char* pBuffer, const char* name, bool first, bool quotes, const char* value1, const char* value2 = NULL, const char* value3 = NULL, const char* value4 = NULL, const char* value5 = NULL);
+char* jsonAddProperty(char* pBuffer, const char* name, bool first, bool quotes, const char* value1, const char* value2 = NULL, const char* value3 = NULL, const char* value4 = NULL, const char* value5 = NULL, const char* value6 = NULL, const char* value7 = NULL);
 char* jsonBeginSection(char* pBuffer, const char* name, bool first);
 char* jsonEndSection(char* pBuffer);
 
