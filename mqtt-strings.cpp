@@ -12,7 +12,8 @@ const char TOPIC_SWITCH_SET[] = "switchSet";
 const char TOPIC_SWITCH_STATE[] = "switchState";
 const char TOPIC_ILLUMINANCE_STATE[] = "illuminanceState";
 const char TOPIC_RESET[] = "reset";
-const char TOPIC_TEXT[] = "text";
+const char TOPIC_TEXT_SET[] = "textSet";
+const char TOPIC_TEXT_STATE[] = "textState";
 
 const char MQTT_ON[] = "ON";
 const char MQTT_OFF[] = "OFF";

@@ -11,7 +11,8 @@ extern const char TOPIC_SWITCH_SET[];
 extern const char TOPIC_SWITCH_STATE[];
 extern const char TOPIC_ILLUMINANCE_STATE[];
 extern const char TOPIC_RESET[];
-extern const char TOPIC_TEXT[];
+extern const char TOPIC_TEXT_SET[];
+extern const char TOPIC_TEXT_STATE[];
 
 extern const char MQTT_ON[];
 extern const char MQTT_OFF[];

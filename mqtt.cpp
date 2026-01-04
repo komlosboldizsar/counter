@@ -18,6 +18,11 @@ ESP32MQTTClient mqttClient;
 
 const char* OPTIONS_CONNTYPE[] = {"mqtt", "ws", NULL};
 
+#define CONCAT_TOPIC(...)           CONCAT(topic, 128, __VA_ARGS__)
+#define PUBLISH(BUFFER)             mqttClient.publish(topic, BUFFER, 0, false);
+#define DISPLAY_STR()               char displayStr[4]; \
+                                    itoa(display, displayStr, 10);
+
 /* Session variables */
 int mqttBrightnessStore = -1;
 int mqttIlluminanceStore = -1;
@@ -44,6 +49,12 @@ void mqttPublishIlluminanceChanged() {
   mqttClient.publish(mqttIlluminanceStateTopic, illuminanceStr, 0, true);
 }
 
+void mqttPublishDisplayTextChanged(uint8_t display) {
+  DISPLAY_STR();
+  CONCAT_TOPIC("counter/", mqttMacClean, "/", TOPIC_TEXT_STATE, "/", displayStr);
+  PUBLISH(displayData[display].text);
+}
+
 /* Notifiers */
 void mqttNotifyBrightnessChanged(int value) {
   mqttBrightnessStore = value;
@@ -53,6 +64,10 @@ void mqttNotifyBrightnessChanged(int value) {
 void mqttNotifyIlluminanceChanged(int value) {
   mqttIlluminanceStore = value;
   mqttPublishIlluminanceChanged();
+}
+
+void mqttNotifyDisplayTextChanged(uint8_t display) {
+  mqttPublishDisplayTextChanged(display);
 }
 
 /* Event handlers */
@@ -104,7 +119,7 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
   // Convert payload
   const char* payload = payloadSTR.c_str();
 
-  if ((strcmp(topicPieces[0], TOPIC_TEXT) == 0) && (topicPieceCount > 1)) {
+  if ((strcmp(topicPieces[0], TOPIC_TEXT_SET) == 0) && (topicPieceCount > 1)) {
     bool displayIdxOk;
     int displayIdx = satoi(topicPieces[1], &displayIdxOk);
     if (displayIdxOk && (displayIdx >= 0))
@@ -155,6 +170,10 @@ void onMqttConnect(esp_mqtt_client_handle_t client) // can't rename
   mqttPublishAutobrightnessChanged();
   mqttPublishBrightnessChanged();
   mqttPublishSwitchChanged();
+  // waiting for retained data, not overwriting with empty
+  /* for (int i = 0; i < SETTINGS_DISPLAY.count; i++) {
+    mqttPublishDisplayTextChanged(i);
+  } */
 }
 
 void handleMQTT(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)

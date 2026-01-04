@@ -5,11 +5,14 @@
 #include "json.h"
 #include <Arduino.h>
 #include "ESP32MQTTClient.h"
+#include "display.h"
 
 extern ESP32MQTTClient mqttClient;
 
 #define CONCAT_TOPIC(...)           CONCAT(topic, 128, __VA_ARGS__)
 #define PUBLISH()                   mqttClient.publish(topic, buffer, 0, false);
+#define DISPLAY_STR()               char displayStr[4]; \
+                                    itoa(display, displayStr, 10);
 
 void mqttHaAutoDiscoveryLight() {
 
@@ -117,11 +120,45 @@ void mqttHaAutoDiscoveryReset() {
 
 }
 
+void mqttHaAutoDiscoveryDisplayText(uint8_t display) {
+
+  DISPLAY_STR();
+
+  char displayTextMaxlenStr[8];
+  itoa(DISPLAY_TEXT_MAXLEN, displayTextMaxlenStr, 10);
+
+  JSON_BEGIN();
+    // Device
+    JSON_BEGIN_SECTION("dev");
+      JSON_VALUE("identifiers", "[\"", "counter_", mqttMacClean, "\"]");
+    JSON_END_SECTION();
+    // Identifiers
+    JSON_PROPERTY("name", "Text ", displayStr);
+    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_text_", displayStr);
+    JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_text_", displayStr);
+    // Topics
+    JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
+    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_TEXT_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_TEXT_STATE, "/", displayStr);
+    // Entity-related data
+    JSON_PROPERTY("icon", "mdi:format-text");
+    JSON_PROPERTY("max", displayTextMaxlenStr);
+    JSON_PROPERTY("ret", "true");
+  JSON_END();
+  
+  CONCAT_TOPIC(SETTINGS_MQTT_HA.discoverytopic, "/text/counter_", mqttMacClean, "_text_", displayStr, "/text/config");
+  PUBLISH();
+
+}
+
 void mqttHaAutoDiscovery() {
   mqttHaAutoDiscoveryLight();
   mqttHaAutoDiscoveryAutobrightness();
   mqttHaAutoDiscoveryIlluminance();
   mqttHaAutoDiscoveryReset();
+  for (int i = 0; i < SETTINGS_DISPLAY.count; i++) {
+    mqttHaAutoDiscoveryDisplayText(i);
+  }
 }
 
 void mqttHaOnStatusMessage(const std::string &topicSTR, const std::string &payloadSTR) {

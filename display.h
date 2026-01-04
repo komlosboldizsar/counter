@@ -18,6 +18,7 @@ extern SettingsManager SM_DISPLAY;
 #define DIGITS_PER_DISPLAY   4
 #define DISPLAY_IDX_ALL     -1
 #define DIGIT_IDX_ALL       -1
+#define DISPLAY_TEXT_MAXLEN  10
 
 enum DotForcing {
   DOT_NO_FORCE,
@@ -26,9 +27,12 @@ enum DotForcing {
 };
 
 struct DisplayData {
+  char text[DISPLAY_TEXT_MAXLEN+1];
   uint8_t segments[DIGITS_PER_DISPLAY];
   DotForcing dotForcing[DIGITS_PER_DISPLAY];
 };
+
+extern DisplayData displayData[MAX_NUM_DISPLAYS];
 
 void displayInit();
 void displayMainLoop();

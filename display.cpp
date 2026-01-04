@@ -2,6 +2,7 @@
 #include "settings.h"
 #include "pins.h"
 #include "utils.h"
+#include "mqtt.h"
 #include <Arduino.h>
 #include "DigitLedDisplay.h"
 
@@ -144,11 +145,20 @@ bool displaySetDataHex(int dispIdx, const char* data) {
 }
 
 void displaySetData(int dispIdx, const char* data) {
+
+  bool dataOk = false;
+
   if ((*data == 'h') || (*data == 'H')) {
-    displaySetDataHex(dispIdx, data);
-    return;
+    dataOk = displaySetDataHex(dispIdx, data);
+  } else {
+    dataOk = displaySetDataNatural(dispIdx, data);
   }
-  displaySetDataNatural(dispIdx, data);
+
+  if (dataOk) {
+    strcpy(displayData[dispIdx].text, data);
+    mqttNotifyDisplayTextChanged(dispIdx);
+  }
+
 }
 
 void displaySetDotForcing(int display, int digit, DotForcing df) {
