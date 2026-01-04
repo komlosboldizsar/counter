@@ -26,10 +26,36 @@ enum DotForcing {
   DOT_FORCE_ON
 };
 
+enum DisplayBlinkSpeed {
+  DBS_DOUBLE,
+  DBS_SINGLE,
+  DBS_HALF,
+  DBS___end
+};
+
+enum DisplayBlinkPhase {
+  DBP_0,
+  DBP_90,
+  DBP_180,
+  DBP_270,
+  DBP___end
+};
+
+enum DisplayBlinkDutyCycle {
+  DBDC_25,
+  DBDC_50,
+  DBDC_75,
+  DBDC___end
+};
+
 struct DisplayData {
   char text[DISPLAY_TEXT_MAXLEN+1];
   uint8_t segments[DIGITS_PER_DISPLAY];
   DotForcing dotForcing[DIGITS_PER_DISPLAY];
+  bool blink;
+  DisplayBlinkSpeed blinkSpeed;
+  DisplayBlinkPhase blinkPhase;
+  DisplayBlinkDutyCycle blinkDutyCycle;
 };
 
 extern DisplayData displayData[MAX_NUM_DISPLAYS];
@@ -40,6 +66,11 @@ void displayMainLoop();
 bool displaySetDataNatural(int dispIdx, const char* data);
 bool displaySetDataHex(int dispIdx, const char* data);
 void displaySetData(int dispIdx, const char* data);
+
+void displaySetBlink(int dispIdx, bool blink);
+void displaySetBlinkSpeed(int dispIdx, DisplayBlinkSpeed blinkSpeed);
+void displaySetBlinkPhase(int dispIdx, DisplayBlinkPhase blinkPhase);
+void displaySetBlinkDutyCycle(int dispIdx, DisplayBlinkDutyCycle blinkDutyCycle);
 
 void displaySetDotForcing(int display, int digit, DotForcing df);
 void displayClearDotForcing(int display = DISPLAY_IDX_ALL, int digit = DIGIT_IDX_ALL);

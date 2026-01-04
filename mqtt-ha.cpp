@@ -151,6 +151,156 @@ void mqttHaAutoDiscoveryDisplayText(uint8_t display) {
 
 }
 
+void mqttHaAutoDiscoveryDisplayBlink(uint8_t display) {
+
+  DISPLAY_STR();
+
+  JSON_BEGIN();
+    // Device
+    JSON_BEGIN_SECTION("dev");
+      JSON_VALUE("identifiers", "[\"", "counter_", mqttMacClean, "\"]");
+    JSON_END_SECTION();
+    // Identifiers
+    JSON_PROPERTY("name", "Blink ", displayStr);
+    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_blink_", displayStr);
+    JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_blink_", displayStr);
+    // Topics
+    JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
+    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_BLINK_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_BLINK_STATE, "/", displayStr);
+    // Entity-related data
+    JSON_PROPERTY("icon", "mdi:lightbulb-on-outline");
+    JSON_PROPERTY("ret", "true");
+  JSON_END();
+  
+  CONCAT_TOPIC(SETTINGS_MQTT_HA.discoverytopic, "/switch/counter_", mqttMacClean, "_blink_", displayStr, "/switch/config");
+  PUBLISH();
+
+}
+
+void mqttHaAutoDiscoveryDisplayBlinkSpeed(uint8_t display) {
+
+  DISPLAY_STR();
+
+  char options[DBS___end*(MQTT_BLINKOPTION_MAXLENGTH+3)+2+1];
+  char* pOptions = options;
+  *pOptions++ = '[';
+  for (int i = 0; i < DBS___end; i++) {
+    *pOptions++ = '"';
+    pOptions = strcat2(pOptions, MQTT_BLINKSPEEDS[i]);
+    *pOptions++ = '"';
+    if (i != (DBS___end - 1))
+      *pOptions++ = ',';
+  }
+  *pOptions++ = ']';
+  *pOptions++ = '\0';
+
+  JSON_BEGIN();
+    // Device
+    JSON_BEGIN_SECTION("dev");
+      JSON_VALUE("identifiers", "[\"", "counter_", mqttMacClean, "\"]");
+    JSON_END_SECTION();
+    // Identifiers
+    JSON_PROPERTY("name", "Blink speed ", displayStr);
+    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_blinkspeed_", displayStr);
+    JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_blinkspeed_", displayStr);
+    // Topics
+    JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
+    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_BLINKSPEED_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_BLINKSPEED_STATE, "/", displayStr);
+    // Entity-related data
+    JSON_PROPERTY("icon", "mdi:sync-circle");
+    JSON_PROPERTY("ret", "true");
+    JSON_VALUE("ops", options);
+  JSON_END();
+  
+  CONCAT_TOPIC(SETTINGS_MQTT_HA.discoverytopic, "/select/counter_", mqttMacClean, "_blinkspeed_", displayStr, "/select/config");
+  PUBLISH();
+
+}
+
+void mqttHaAutoDiscoveryDisplayBlinkPhase(uint8_t display) {
+
+  DISPLAY_STR();
+
+  char options[DBP___end*(MQTT_BLINKOPTION_MAXLENGTH+3)+2+1];
+  char* pOptions = options;
+  *pOptions++ = '[';
+  for (int i = 0; i < DBP___end; i++) {
+    *pOptions++ = '"';
+    pOptions = strcat2(pOptions, MQTT_BLINKPHASES[i]);
+    *pOptions++ = '"';
+    if (i != (DBP___end - 1))
+      *pOptions++ = ',';
+  }
+  *pOptions++ = ']';
+  *pOptions++ = '\0';
+
+  JSON_BEGIN();
+    // Device
+    JSON_BEGIN_SECTION("dev");
+      JSON_VALUE("identifiers", "[\"", "counter_", mqttMacClean, "\"]");
+    JSON_END_SECTION();
+    // Identifiers
+    JSON_PROPERTY("name", "Blink phase ", displayStr);
+    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_blinkphase_", displayStr);
+    JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_blinkphase_", displayStr);
+    // Topics
+    JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
+    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_BLINKPHASE_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_BLINKPHASE_STATE, "/", displayStr);
+    // Entity-related data
+    JSON_PROPERTY("icon", "mdi:circle-slice-2");
+    JSON_PROPERTY("ret", "true");
+    JSON_VALUE("ops", options);
+  JSON_END();
+  
+  CONCAT_TOPIC(SETTINGS_MQTT_HA.discoverytopic, "/select/counter_", mqttMacClean, "_blinkphase_", displayStr, "/select/config");
+  PUBLISH();
+
+}
+
+void mqttHaAutoDiscoveryDisplayBlinkDutyCycle(uint8_t display) {
+
+  DISPLAY_STR();
+
+  char options[DBDC___end*(MQTT_BLINKOPTION_MAXLENGTH+3)+2+1];
+  char* pOptions = options;
+  *pOptions++ = '[';
+  for (int i = 0; i < DBDC___end; i++) {
+    *pOptions++ = '"';
+    pOptions = strcat2(pOptions, MQTT_BLINKDUTYCYCLES[i]);
+    *pOptions++ = '"';
+    if (i != (DBDC___end - 1))
+      *pOptions++ = ',';
+  }
+  *pOptions++ = ']';
+  *pOptions++ = '\0';
+
+  JSON_BEGIN();
+    // Device
+    JSON_BEGIN_SECTION("dev");
+      JSON_VALUE("identifiers", "[\"", "counter_", mqttMacClean, "\"]");
+    JSON_END_SECTION();
+    // Identifiers
+    JSON_PROPERTY("name", "Blink duty cycle ", displayStr);
+    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_blinkdutycycle_", displayStr);
+    JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_blinkdutycycle_", displayStr);
+    // Topics
+    JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
+    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_BLINKDUTYCYCLE_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_BLINKDUTYCYCLE_STATE, "/", displayStr);
+    // Entity-related data
+    JSON_PROPERTY("icon", "mdi:circle-slice-4");
+    JSON_PROPERTY("ret", "true");
+    JSON_VALUE("ops", options);
+  JSON_END();
+  
+  CONCAT_TOPIC(SETTINGS_MQTT_HA.discoverytopic, "/select/counter_", mqttMacClean, "_blinkdutycycle_", displayStr, "/select/config");
+  PUBLISH();
+
+}
+
 void mqttHaAutoDiscovery() {
   mqttHaAutoDiscoveryLight();
   mqttHaAutoDiscoveryAutobrightness();
@@ -158,6 +308,10 @@ void mqttHaAutoDiscovery() {
   mqttHaAutoDiscoveryReset();
   for (int i = 0; i < SETTINGS_DISPLAY.count; i++) {
     mqttHaAutoDiscoveryDisplayText(i);
+    mqttHaAutoDiscoveryDisplayBlink(i);
+    mqttHaAutoDiscoveryDisplayBlinkSpeed(i);
+    mqttHaAutoDiscoveryDisplayBlinkPhase(i);
+    mqttHaAutoDiscoveryDisplayBlinkDutyCycle(i);
   }
 }
 

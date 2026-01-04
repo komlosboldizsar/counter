@@ -55,6 +55,36 @@ void mqttPublishDisplayTextChanged(uint8_t display) {
   PUBLISH(displayData[display].text);
 }
 
+void mqttPublishDisplayBlinkChanged(uint8_t display) {
+  DISPLAY_STR();
+  CONCAT_TOPIC("counter/", mqttMacClean, "/", TOPIC_BLINK_STATE, "/", displayStr);
+  PUBLISH(displayData[display].blink ? MQTT_ON : MQTT_OFF);
+}
+
+void mqttPublishDisplayBlinkSpeedChanged(uint8_t display) {
+  DISPLAY_STR();
+  CONCAT_TOPIC("counter/", mqttMacClean, "/", TOPIC_BLINKSPEED_STATE, "/", displayStr);
+  int value = (int)displayData[display].blinkSpeed;
+  if ((value >= 0) && (value < DBS___end))
+    PUBLISH(MQTT_BLINKSPEEDS[value]);
+}
+
+void mqttPublishDisplayBlinkPhaseChanged(uint8_t display) {
+  DISPLAY_STR();
+  CONCAT_TOPIC("counter/", mqttMacClean, "/", TOPIC_BLINKPHASE_STATE, "/", displayStr);
+  int value = (int)displayData[display].blinkPhase;
+  if ((value >= 0) && (value < DBP___end))
+    PUBLISH(MQTT_BLINKPHASES[value]);
+}
+
+void mqttPublishDisplayBlinkDutyCycleChanged(uint8_t display) {
+  DISPLAY_STR();
+  CONCAT_TOPIC("counter/", mqttMacClean, "/", TOPIC_BLINKDUTYCYCLE_STATE, "/", displayStr);
+  int value = (int)displayData[display].blinkDutyCycle;
+  if ((value >= 0) && (value < DBDC___end))
+    PUBLISH(MQTT_BLINKDUTYCYCLES[value]);
+}
+
 /* Notifiers */
 void mqttNotifyBrightnessChanged(int value) {
   mqttBrightnessStore = value;
@@ -68,6 +98,22 @@ void mqttNotifyIlluminanceChanged(int value) {
 
 void mqttNotifyDisplayTextChanged(uint8_t display) {
   mqttPublishDisplayTextChanged(display);
+}
+
+void mqttNotifyDisplayBlinkChanged(uint8_t display) {
+  mqttPublishDisplayBlinkChanged(display);
+}
+
+void mqttNotifyDisplayBlinkSpeedChanged(uint8_t display) {
+  mqttPublishDisplayBlinkSpeedChanged(display);
+}
+
+void mqttNotifyDisplayBlinkPhaseChanged(uint8_t display) {
+  mqttPublishDisplayBlinkPhaseChanged(display);
+}
+
+void mqttNotifyDisplayBlinkDutyCycleChanged(uint8_t display) {
+  mqttPublishDisplayBlinkDutyCycleChanged(display);
 }
 
 /* Event handlers */
@@ -124,6 +170,61 @@ void mqttOnMessage(const std::string &topicSTR, const std::string &payloadSTR) {
     int displayIdx = satoi(topicPieces[1], &displayIdxOk);
     if (displayIdxOk && (displayIdx >= 0))
       displaySetData(displayIdx, payload);
+    return;
+  }
+
+  if ((strcmp(topicPieces[0], TOPIC_BLINK_SET) == 0) && (topicPieceCount > 1)) {
+    bool displayIdxOk;
+    int displayIdx = satoi(topicPieces[1], &displayIdxOk);
+    if (displayIdxOk && (displayIdx >= 0)) {
+      if (strcmp(payload, MQTT_ON) == 0) {
+        displaySetBlink(displayIdx, true);
+      } else if (strcmp(payload, MQTT_OFF) == 0) {
+        displaySetBlink(displayIdx, false);
+      }
+    }
+    return;
+  }
+
+  if ((strcmp(topicPieces[0], TOPIC_BLINKSPEED_SET) == 0) && (topicPieceCount > 1)) {
+    bool displayIdxOk;
+    int displayIdx = satoi(topicPieces[1], &displayIdxOk);
+    if (displayIdxOk && (displayIdx >= 0)) {
+      for (int i = 0; i < DBS___end; i++) {
+        if (strcmp(payload, MQTT_BLINKSPEEDS[i]) == 0) {
+          displaySetBlinkSpeed(displayIdx, (DisplayBlinkSpeed)i);
+          break;
+        }
+      }
+    }
+    return;
+  }
+
+  if ((strcmp(topicPieces[0], TOPIC_BLINKPHASE_SET) == 0) && (topicPieceCount > 1)) {
+    bool displayIdxOk;
+    int displayIdx = satoi(topicPieces[1], &displayIdxOk);
+    if (displayIdxOk && (displayIdx >= 0)) {
+      for (int i = 0; i < DBP___end; i++) {
+        if (strcmp(payload, MQTT_BLINKPHASES[i]) == 0) {
+          displaySetBlinkPhase(displayIdx, (DisplayBlinkPhase)i);
+          break;
+        }
+      }
+    }
+    return;
+  }
+
+  if ((strcmp(topicPieces[0], TOPIC_BLINKDUTYCYCLE_SET) == 0) && (topicPieceCount > 1)) {
+    bool displayIdxOk;
+    int displayIdx = satoi(topicPieces[1], &displayIdxOk);
+    if (displayIdxOk && (displayIdx >= 0)) {
+      for (int i = 0; i < DBDC___end; i++) {
+        if (strcmp(payload, MQTT_BLINKDUTYCYCLES[i]) == 0) {
+          displaySetBlinkDutyCycle(displayIdx, (DisplayBlinkDutyCycle)i);
+          break;
+        }
+      }
+    }
     return;
   }
 

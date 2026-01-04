@@ -44,5 +44,9 @@ bool mqttIsConnected();
 void mqttNotifyBrightnessChanged(int value);
 void mqttNotifyIlluminanceChanged(int value);
 void mqttNotifyDisplayTextChanged(uint8_t display);
+void mqttNotifyDisplayBlinkChanged(uint8_t display);
+void mqttNotifyDisplayBlinkSpeedChanged(uint8_t display);
+void mqttNotifyDisplayBlinkPhaseChanged(uint8_t display);
+void mqttNotifyDisplayBlinkDutyCycleChanged(uint8_t display);
 
 #endif

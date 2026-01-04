@@ -14,12 +14,24 @@ const char TOPIC_ILLUMINANCE_STATE[] = "illuminanceState";
 const char TOPIC_RESET[] = "reset";
 const char TOPIC_TEXT_SET[] = "textSet";
 const char TOPIC_TEXT_STATE[] = "textState";
+const char TOPIC_BLINK_SET[] = "blinkSet";
+const char TOPIC_BLINK_STATE[] = "blinkState";
+const char TOPIC_BLINKSPEED_SET[] = "blinkSpeedSet";
+const char TOPIC_BLINKSPEED_STATE[] = "blinkSpeedState";
+const char TOPIC_BLINKPHASE_SET[] = "blinkPhaseSet";
+const char TOPIC_BLINKPHASE_STATE[] = "blinkPhaseState";
+const char TOPIC_BLINKDUTYCYCLE_SET[] = "blinkDutyCycleSet";
+const char TOPIC_BLINKDUTYCYCLE_STATE[] = "blinkDutyCycleState";
 
 const char MQTT_ON[] = "ON";
 const char MQTT_OFF[] = "OFF";
 const char MQTT_ONLINE[] = "online";
 const char MQTT_OFFLINE[] = "offline";
 const char MQTT_RESET[] = "reset";
+
+const char MQTT_BLINKSPEEDS[DBS___end][MQTT_BLINKOPTION_MAXLENGTH] = {"double", "single", "half"};
+const char MQTT_BLINKPHASES[DBP___end][MQTT_BLINKOPTION_MAXLENGTH] = {"0°", "90°", "180°", "270°"};
+const char MQTT_BLINKDUTYCYCLES[DBDC___end][MQTT_BLINKOPTION_MAXLENGTH] = {"25%", "50%", "75%"};
 
 const char HEX_CHRS[] = "0123456789ABCDEF";
 

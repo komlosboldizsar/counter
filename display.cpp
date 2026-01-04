@@ -22,16 +22,43 @@ const static uint8_t SEGMENTS_SPEC[] = {
 DisplayData displayData[MAX_NUM_DISPLAYS];
 
 void displayInit() {
+  for (int i = 0; i < MAX_NUM_DISPLAYS; i++) {
+    displayData[i].blink = false;
+    displayData[i].blinkSpeed = DBS_SINGLE;
+    displayData[i].blinkPhase = DBP_0;
+    displayData[i].blinkDutyCycle = DBDC_50;
+  }
   display.setBrightness(15);
   display.init(DIGITS_PER_DISPLAY);
   displayClear();
 }
 
+uint8_t displayBlinkCounter = 0;
+
 void displayMainLoop() {
+
+  bool displayOn[MAX_NUM_DISPLAYS];
+
+  for (int displayIdx = 0; displayIdx < SETTINGS_DISPLAY.count; displayIdx++) {
+    if (displayData[displayIdx].blink) {
+      // speed
+      uint8_t currentBlinkCounter = (displayBlinkCounter >> (3 + (int)displayData[displayIdx].blinkSpeed));
+      currentBlinkCounter &= 0b11; // mod 4
+      // phase
+      currentBlinkCounter += (int)displayData[displayIdx].blinkPhase;
+      currentBlinkCounter &= 0b11; // mod 4
+      // duty
+      displayOn[displayIdx] = (currentBlinkCounter < ((int)displayData[displayIdx].blinkDutyCycle + 1));
+    } else {
+      displayOn[displayIdx] = true;
+    }
+  }
+
   for (int digitIdx = 0; digitIdx < DIGITS_PER_DISPLAY; digitIdx++) {
     display.startWrite();
     for (int displayIdx = SETTINGS_DISPLAY.count-1; displayIdx >= 0; displayIdx--) {
       byte seg = displayData[displayIdx].segments[digitIdx];
+      seg &= displayOn[displayIdx] ? 0xFF : 0x00;
       DotForcing df = displayData[displayIdx].dotForcing[digitIdx];
       if (df == DOT_FORCE_OFF)
         seg &= 0x7F;
@@ -41,6 +68,9 @@ void displayMainLoop() {
     }
     display.endWrite();
   }
+
+  displayBlinkCounter++;
+
 }
 
 bool displaySetDataNatural(int dispIdx, const char* data) {
@@ -159,6 +189,26 @@ void displaySetData(int dispIdx, const char* data) {
     mqttNotifyDisplayTextChanged(dispIdx);
   }
 
+}
+
+void displaySetBlink(int dispIdx, bool blink) {
+  displayData[dispIdx].blink = blink;
+  mqttNotifyDisplayBlinkChanged(dispIdx);
+}
+
+void displaySetBlinkSpeed(int dispIdx, DisplayBlinkSpeed blinkSpeed) {
+displayData[dispIdx].blinkSpeed = blinkSpeed;
+  mqttNotifyDisplayBlinkSpeedChanged(dispIdx);
+}
+
+void displaySetBlinkPhase(int dispIdx, DisplayBlinkPhase blinkPhase) {
+  displayData[dispIdx].blinkPhase = blinkPhase;
+  mqttNotifyDisplayBlinkPhaseChanged(dispIdx);
+}
+
+void displaySetBlinkDutyCycle(int dispIdx, DisplayBlinkDutyCycle blinkDutyCycle) {
+  displayData[dispIdx].blinkDutyCycle = blinkDutyCycle;
+  mqttNotifyDisplayBlinkDutyCycleChanged(dispIdx);
 }
 
 void displaySetDotForcing(int display, int digit, DotForcing df) {
