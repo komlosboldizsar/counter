@@ -27,13 +27,13 @@ void mqttHaAutoDiscoveryLight() {
     JSON_END_SECTION();
     // Identifiers
     JSON_PROPERTY("name", "Light");
-    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_light");
+    JSON_PROPERTY("def_ent_id", "light.", SETTINGS_MQTT_HA.friendlyname);
     JSON_PROPERTY("uniq_id", "counter_", mqttMacClean);
     // Topics
     JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
-    JSON_PROPERTY("bri_cmd_t", "counter/", mqttMacClean, "/brightnessSet");
+    JSON_PROPERTY("bri_cmd_t", SETTINGS_MQTT.topic, "/", TOPIC_BRIGHTNESS_SET);
     JSON_PROPERTY("bri_stat_t", mqttBrightnessStateTopic);
-    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/switchSet");
+    JSON_PROPERTY("cmd_t", SETTINGS_MQTT.topic, "/", TOPIC_SWITCH_SET);
     JSON_PROPERTY("stat_t", mqttSwitchStateTopic);
     // Entity-related data
     JSON_PROPERTY("bri_scl", "15");
@@ -54,11 +54,11 @@ void mqttHaAutoDiscoveryAutobrightness() {
     JSON_END_SECTION();
     // Identifiers
     JSON_PROPERTY("name", "Auto brightness");
-    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_autobrigthness");
+    JSON_PROPERTY("def_ent_id", "switch.", SETTINGS_MQTT_HA.friendlyname, "_autobrigthness");
     JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_autobrightness");
     // Topics
     JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
-    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/autobrightnessSet");
+    JSON_PROPERTY("cmd_t", SETTINGS_MQTT.topic, "/", TOPIC_AUTOBRIGHTNESS_SET);
     JSON_PROPERTY("stat_t", mqttAutobrightnessStateTopic);
     // Entity-related data
     JSON_PROPERTY("icon", "mdi:brightness-auto");
@@ -78,7 +78,7 @@ void mqttHaAutoDiscoveryIlluminance() {
     JSON_END_SECTION();
     // Identifiers
     JSON_PROPERTY("name", "Light sensor");
-    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_illuminance");
+    JSON_PROPERTY("def_ent_id", "sensor.", SETTINGS_MQTT_HA.friendlyname, "_illuminance");
     JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_illuminance");
     // Topics
     JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
@@ -105,7 +105,7 @@ void mqttHaAutoDiscoveryReset() {
     JSON_END_SECTION();
     // Identifiers
     JSON_PROPERTY("name", "Reset");
-    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_reset");
+    JSON_PROPERTY("def_ent_id", "button.", SETTINGS_MQTT_HA.friendlyname, "_reset");
     JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_reset");
     // Topics
     JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
@@ -134,12 +134,12 @@ void mqttHaAutoDiscoveryDisplayText(uint8_t display) {
     JSON_END_SECTION();
     // Identifiers
     JSON_PROPERTY("name", "Text ", displayStr);
-    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_text_", displayStr);
+    JSON_PROPERTY("def_ent_id", "text.", SETTINGS_MQTT_HA.friendlyname, "_", displayStr);
     JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_text_", displayStr);
     // Topics
     JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
-    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_TEXT_SET, "/", displayStr);
-    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_TEXT_STATE, "/", displayStr);
+    JSON_PROPERTY("cmd_t", SETTINGS_MQTT.topic, "/", TOPIC_TEXT_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", SETTINGS_MQTT.topic, "/", TOPIC_TEXT_STATE, "/", displayStr);
     // Entity-related data
     JSON_PROPERTY("icon", "mdi:format-text");
     JSON_PROPERTY("max", displayTextMaxlenStr);
@@ -162,12 +162,12 @@ void mqttHaAutoDiscoveryDisplayBlink(uint8_t display) {
     JSON_END_SECTION();
     // Identifiers
     JSON_PROPERTY("name", "Blink ", displayStr);
-    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_blink_", displayStr);
+    JSON_PROPERTY("def_ent_id", "switch.", SETTINGS_MQTT_HA.friendlyname, "_blink_", displayStr);
     JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_blink_", displayStr);
     // Topics
     JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
-    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_BLINK_SET, "/", displayStr);
-    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_BLINK_STATE, "/", displayStr);
+    JSON_PROPERTY("cmd_t", SETTINGS_MQTT.topic, "/", TOPIC_BLINK_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", SETTINGS_MQTT.topic, "/", TOPIC_BLINK_STATE, "/", displayStr);
     // Entity-related data
     JSON_PROPERTY("icon", "mdi:lightbulb-on-outline");
     JSON_PROPERTY("ret", "true");
@@ -202,12 +202,12 @@ void mqttHaAutoDiscoveryDisplayBlinkSpeed(uint8_t display) {
     JSON_END_SECTION();
     // Identifiers
     JSON_PROPERTY("name", "Blink speed ", displayStr);
-    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_blinkspeed_", displayStr);
+    JSON_PROPERTY("def_ent_id", "select.", SETTINGS_MQTT_HA.friendlyname, "_blinkspeed_", displayStr);
     JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_blinkspeed_", displayStr);
     // Topics
     JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
-    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_BLINKSPEED_SET, "/", displayStr);
-    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_BLINKSPEED_STATE, "/", displayStr);
+    JSON_PROPERTY("cmd_t", SETTINGS_MQTT.topic, "/", TOPIC_BLINKSPEED_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", SETTINGS_MQTT.topic, "/", TOPIC_BLINKSPEED_STATE, "/", displayStr);
     // Entity-related data
     JSON_PROPERTY("icon", "mdi:sync-circle");
     JSON_PROPERTY("ret", "true");
@@ -243,12 +243,12 @@ void mqttHaAutoDiscoveryDisplayBlinkPhase(uint8_t display) {
     JSON_END_SECTION();
     // Identifiers
     JSON_PROPERTY("name", "Blink phase ", displayStr);
-    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_blinkphase_", displayStr);
+    JSON_PROPERTY("def_ent_id", "select.", SETTINGS_MQTT_HA.friendlyname, "_blinkphase_", displayStr);
     JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_blinkphase_", displayStr);
     // Topics
     JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
-    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_BLINKPHASE_SET, "/", displayStr);
-    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_BLINKPHASE_STATE, "/", displayStr);
+    JSON_PROPERTY("cmd_t", SETTINGS_MQTT.topic, "/", TOPIC_BLINKPHASE_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", SETTINGS_MQTT.topic, "/", TOPIC_BLINKPHASE_STATE, "/", displayStr);
     // Entity-related data
     JSON_PROPERTY("icon", "mdi:circle-slice-2");
     JSON_PROPERTY("ret", "true");
@@ -284,12 +284,12 @@ void mqttHaAutoDiscoveryDisplayBlinkDutyCycle(uint8_t display) {
     JSON_END_SECTION();
     // Identifiers
     JSON_PROPERTY("name", "Blink duty cycle ", displayStr);
-    JSON_PROPERTY("object_id", SETTINGS_MQTT_HA.friendlyname, "_blinkdutycycle_", displayStr);
+    JSON_PROPERTY("def_ent_id", "select.", SETTINGS_MQTT_HA.friendlyname, "_blinkdutycycle_", displayStr);
     JSON_PROPERTY("uniq_id", "counter_", mqttMacClean, "_blinkdutycycle_", displayStr);
     // Topics
     JSON_PROPERTY("avty_t", mqttAvailabilityTopic);
-    JSON_PROPERTY("cmd_t", "counter/", mqttMacClean, "/", TOPIC_BLINKDUTYCYCLE_SET, "/", displayStr);
-    JSON_PROPERTY("stat_t", "counter/", mqttMacClean, "/", TOPIC_BLINKDUTYCYCLE_STATE, "/", displayStr);
+    JSON_PROPERTY("cmd_t", SETTINGS_MQTT.topic, "/", TOPIC_BLINKDUTYCYCLE_SET, "/", displayStr);
+    JSON_PROPERTY("stat_t", SETTINGS_MQTT.topic, "/", TOPIC_BLINKDUTYCYCLE_STATE, "/", displayStr);
     // Entity-related data
     JSON_PROPERTY("icon", "mdi:circle-slice-4");
     JSON_PROPERTY("ret", "true");
